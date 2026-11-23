@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credit Thesis Agent</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column. Each section is a claim, then one diagram built from boxes that stack on a phone. */
+:root{
+  --bg:#f6f7f4; --panel:#ffffff; --ink:#16211c; --muted:#56635c; --line:#cfd6d0;
+  --accent:#0b6b55; --accent-soft:#dcefe8; --stop:#a4372a; --stop-soft:#f6e1dc; --warn:#8a5a00; --warn-soft:#f5ead0;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#101613; --panel:#18211d; --ink:#e8efe9; --muted:#a3b1a9; --line:#33413a;
+  --accent:#58c9a8; --accent-soft:#173a30; --stop:#ef8f80; --stop-soft:#3b1d18; --warn:#e2b657; --warn-soft:#3a2f12; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#101613; --panel:#18211d; --ink:#e8efe9; --muted:#a3b1a9; --line:#33413a;
+  --accent:#58c9a8; --accent-soft:#173a30; --stop:#ef8f80; --stop-soft:#3b1d18; --warn:#e2b657; --warn-soft:#3a2f12; color-scheme:dark }
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:900px;margin:0 auto;padding-block:36px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:44px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,6vw,46px);line-height:1.08;margin:0;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(21px,3.6vw,27px);line-height:1.2;margin:0;text-wrap:balance}
+p{margin:0;max-width:66ch}
+.lede{font-size:clamp(18px,2.6vw,21px);line-height:1.45}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.muted{color:var(--muted)}
+section{display:flex;flex-direction:column;gap:16px}
+header{display:flex;flex-direction:column;gap:14px}
+.cap{font-size:14px;color:var(--muted)}
+code{font-family:var(--mono);font-size:.88em;background:var(--accent-soft);padding:1px 5px;border-radius:3px}
+
+/* pipeline */
+.flow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:22px 14px;counter-reset:s}
+.step{position:relative;background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--accent);padding:12px 10px;min-width:0;display:flex;flex-direction:column;gap:6px}
+.step b{font-family:var(--display);font-size:16px;line-height:1.2}
+.step span{font-size:13px;color:var(--muted);line-height:1.4}
+.step .who{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+.step:not(:last-child)::after{content:"→";position:absolute;right:-13px;top:50%;transform:translate(50%,-50%);color:var(--muted);font-size:15px}
+.step.plain{border-top-color:var(--line)}
+@media (max-width:760px){ .flow{grid-template-columns:1fr;gap:20px} .step:not(:last-child)::after{content:"↓";right:50%;top:auto;bottom:-20px;transform:translateX(50%)} }
+
+/* permission lanes */
+.lanes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.lane{background:var(--panel);border:1px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.lane h3{font-family:var(--display);font-size:18px;margin:0}
+.lane ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.lane li{padding-left:22px;position:relative;line-height:1.4}
+.lane li.y::before{content:"✓";position:absolute;left:0;color:var(--accent);font-weight:600}
+.lane li.n::before{content:"✕";position:absolute;left:0;color:var(--stop);font-weight:600}
+.guard{font-size:13px;background:var(--warn-soft);color:var(--ink);border-left:3px solid var(--warn);padding:8px 10px;line-height:1.4}
+@media (max-width:760px){ .lanes{grid-template-columns:1fr} }
+
+/* theme split */
+.split{display:flex;flex-direction:column;gap:26px}
+.root{position:relative;background:var(--accent-soft);border:1px solid var(--accent);padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.root b{font-family:var(--display);font-size:18px;line-height:1.25}
+.root span{font-size:14px}
+.root .who{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.root:not(.join)::after,.themes::after{content:"↓";position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);color:var(--muted)}
+.themes{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.theme{background:var(--panel);border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.theme b{font-family:var(--display);font-size:16px;line-height:1.2}
+.theme>span{font-size:13px;color:var(--muted);line-height:1.4}
+.theme dl{margin:4px 0 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 10px;font-size:13px;border-top:1px solid var(--line);padding-top:8px}
+.theme dt{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);padding-top:2px}
+.theme dd{margin:0;line-height:1.35}
+.theme .tag{align-self:flex-start;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:99px}
+.theme .tag.ok{background:var(--accent-soft);color:var(--accent)}
+.theme .tag.cand{background:var(--warn-soft);color:var(--warn)}
+@media (max-width:760px){ .themes{grid-template-columns:1fr} }
+
+/* reasoning sequence */
+.seq{display:flex;flex-direction:column;gap:0}
+.row{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+.row .n{font-family:var(--mono);font-size:13px;color:var(--accent);padding-top:2px}
+.row b{font-family:var(--display);font-size:16px}
+.row p{font-size:14px;color:var(--muted)}
+.wall{background:var(--stop-soft);border:1px solid var(--stop);color:var(--ink);padding:10px 14px;font-size:14px;margin:8px 0;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.wall b{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--stop)}
+.zone{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-top:12px}
+
+/* checks */
+.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.chk{background:var(--panel);border:1px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.chk b{font-size:15px}
+.chk span{font-size:14px;color:var(--muted);line-height:1.4}
+.chk .by{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+@media (max-width:640px){ .checks{grid-template-columns:1fr} }
+
+/* never list */
+.never{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.never div{border-left:3px solid var(--stop);background:var(--panel);padding:10px 12px;font-size:14px;line-height:1.4;min-width:0}
+@media (max-width:640px){ .never{grid-template-columns:1fr} }
+
+/* repo map */
+.tree{overflow-x:auto;background:var(--panel);border:1px solid var(--line);padding:14px}
+.tree table{border-collapse:collapse;font-size:14px;min-width:520px;width:100%}
+.tree td{padding:5px 10px 5px 0;vertical-align:top;border-bottom:1px solid var(--line)}
+.tree tr:last-child td{border-bottom:0}
+.tree td:first-child{font-family:var(--mono);font-size:13px;white-space:nowrap}
+.tree td code{white-space:nowrap}
+.tree td{line-height:1.7}
+.pill{font-family:var(--mono);font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:99px;white-space:nowrap}
+.pub{background:var(--accent-soft);color:var(--accent)} .loc{background:var(--stop-soft);color:var(--stop)}
+footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+</style>
+
+</head>
+<body style="margin:0">
+<div class="wrap">
+<header>
+  <span class="eyebrow">credit-thesis-cycle · what it is for</span>
+  <h1>An agent that keeps one credit thesis current</h1>
+  <p class="lede">Every two days it reads the market and the commentary, reasons from first principles, checks its own work, and writes you a short research note. It stops before any trade.</p>
+  <p class="muted">The thesis it maintains: how much of next year's AI debt supply do US credit spreads already price? The agent is built so that a different question can replace this one.</p>
+</header>
+
+<section>
+  <span class="eyebrow">Diagram 1 · the loop</span>
+  <h2>One run has six steps, and a model does only three of them</h2>
+  <div class="flow">
+    <div class="step"><span class="who">Model · browser</span><b>Collect</b><span>Reads new posts from 17 X accounts with one fixed script.</span></div>
+    <div class="step plain"><span class="who">Python</span><b>Merge</b><span>Adds the new posts to a private corpus. Removes duplicates.</span></div>
+    <div class="step plain"><span class="who">Python</span><b>Readings</b><span>Pulls 18 market series from FRED, with a month of history.</span></div>
+    <div class="step"><span class="who">Model · files</span><b>Analyse</b><span>Updates the thesis, the scenarios and the falsifiers.</span></div>
+    <div class="step plain"><span class="who">Python</span><b>Page</b><span>Builds the one-page view with its charts from the run files.</span></div>
+    <div class="step"><span class="who">Model · mail</span><b>Send</b><span>Sends one email to the listed addresses.</span></div>
+  </div>
+  <p class="cap">Plain scripts do everything that needs no judgement. A script cannot be talked into a different result.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Diagram 2 · three narrow agents</span>
+  <h2>No single agent can both read the internet and send mail</h2>
+  <p>The job starts three separate model runs. Each has its own permission file. Code outside the model enforces the limits.</p>
+  <div class="lanes">
+    <div class="lane"><h3>Collect</h3><ul>
+      <li class="y">Open the profile of a listed account</li><li class="y">Run one fixed script on the page</li>
+      <li class="n">Click, type, like, follow or post</li><li class="n">Read files, run commands, send mail</li></ul>
+      <div class="guard">Guard: a hook rejects every address and every script that is not on the list.</div></div>
+    <div class="lane"><h3>Analyse</h3><ul>
+      <li class="y">Read the skill library and the run files</li><li class="y">Search Gmail, read only. Search the web</li><li class="y">Run three named check scripts</li>
+      <li class="n">Use the browser</li><li class="n">Send, draft, label or delete mail</li><li class="n">Read the recipients file</li></ul>
+      <div class="guard">Guard: it writes only inside the folder of this run.</div></div>
+    <div class="lane"><h3>Send</h3><ul>
+      <li class="y">Read the email file and the recipients file</li><li class="y">Send one message</li>
+      <li class="n">Add a recipient, a copy or an attachment</li><li class="n">Read anything else, search, or run commands</li></ul>
+      <div class="guard">Guard: a hook blocks any address outside the list, and any second send.</div></div>
+  </div>
+  <p class="cap">A post or an email can contain text that tries to instruct the agent. The agent that reads such text has no way to act on it.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Diagram 3 · one thesis, several themes</span>
+  <h2>It splits the thesis into themes, and each theme must stand alone</h2>
+  <p>A thesis is too large to test in one piece. The agent breaks it into themes. A theme is one causal claim with its own measure, its own price and its own falsifier.</p>
+  <div class="split">
+    <div class="root"><span class="who">The thesis</span><b>How much AI debt supply do US credit spreads price?</b></div>
+    <div class="themes">
+      <div class="theme"><span class="tag ok">thesis</span><b>Top-tier supply premium</b><span>Heavy AA and A issuance lifts top-rated spreads against BBB.</span><dl><dt>Axis</dt><dd>AA spread over BBB spread</dd><dt>Priced</dt><dd>About two thirds</dd></dl></div>
+      <div class="theme"><span class="tag ok">thesis</span><b>Weak AI borrowers</b><span>The market sorts AI borrowers by the support of a large customer.</span><dl><dt>Axis</dt><dd>CCC spread</dd><dt>Priced</dt><dd>Repriced</dd></dl></div>
+      <div class="theme"><span class="tag cand">candidate</span><b>Debt outside the bond market</b><span>Vehicles, bank loans and private credit hold debt that no index shows.</span><dl><dt>Axis</dt><dd>None yet. Two loan sales only</dd><dt>Priced</dt><dd>Not priced</dd></dl></div>
+      <div class="theme"><span class="tag cand">candidate</span><b>Long yields carry part of it</b><span>Long AI bonds compete with long Treasuries for the same buyers.</span><dl><dt>Axis</dt><dd>Term premium</dd><dt>Priced</dt><dd>Unknown part</dd></dl></div>
+      <div class="theme"><span class="tag ok">thesis</span><b>The Fed path</b><span>The curve already holds the hikes. Only a surprise is new.</span><dl><dt>Axis</dt><dd>2-year yield over the policy ceiling</dd><dt>Priced</dt><dd>About three hikes</dd></dl></div>
+      <div class="theme"><span class="tag cand">candidate</span><b>A capex cut and the leases</b><span>Less bond supply can arrive with more stress at lenders.</span><dl><dt>Axis</dt><dd>None yet</dd><dt>Priced</dt><dd>Not stated</dd></dl></div>
+    </div>
+    <div class="root join"><span class="who">Back together</span><b>One scenario grid, one note</b><span>The note ranks the themes. Strong facts with little attention come first.</span></div>
+  </div>
+  <p class="cap">A theme that passes all four gates is a thesis. A theme with no measurable axis stays a candidate, and the note says which gate it failed. This example split is a proposal from today's causal chain.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Diagram 4 · how it reasons about each theme</span>
+  <h2>It reasons fresh, freezes that reasoning, and only then looks at history</h2>
+  <div class="seq">
+    <div class="zone">Fresh reasoning · method material only</div>
+    <div class="row"><span class="n">1</span><div><b>Sort the evidence into three streams</b><p>An observation is a dated fact. A narrative is an author's causal claim. A consensus signal shows what the crowd watches. Ten accounts that repeat one claim count as one narrative.</p></div></div>
+    <div class="row"><span class="n">2</span><div><b>Ask every skill in the library</b><p>35 skills, made from books and papers. Each gets a verdict: gives a method, is a past case, or is not relevant. A book claim needs a chapter cite.</p></div></div>
+    <div class="row"><span class="n">3</span><div><b>Write the causal chain and split it into themes</b><p>Each link has a mechanism, a number and a source. Links that share one driver and one measure form a theme. Each theme names its own measurable axis.</p></div></div>
+    <div class="wall"><b>Freeze</b><span>The chain is saved and hashed. Nothing below this line may change it.</span></div>
+    <div class="zone">After the freeze · history allowed</div>
+    <div class="row"><span class="n">4</span><div><b>Consult past episodes</b><p>Used for two things only: to find analogues and to size the moves.</p></div></div>
+    <div class="row"><span class="n">5</span><div><b>Price the scenarios</b><p>Five scenarios, each with a probability and a spread move. A script computes the expected move and what today's spread implies. Probabilities are labelled as evidence weighted or as an assumption.</p></div></div>
+    <div class="row"><span class="n">6</span><div><b>Test the falsifiers</b><p>Each falsifier has an observable and a threshold. The agent reports each one as not triggered, close or triggered.</p></div></div>
+    <div class="row"><span class="n">7</span><div><b>Argue against itself</b><p>Two fixed paragraphs: what would be true if the thesis were wrong, and the strongest objection from the library.</p></div></div>
+  </div>
+  <p class="cap">The freeze stops old conclusions from steering new reasoning. You can always see what the agent concluded before it looked at history.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Diagram 5 · which skills feed which step</span>
+  <h2>Each of the 35 skills has one place in the method</h2>
+  <p>A skill is a book or a paper turned into chapter files. The table shows where each one enters, as the run of 23 Nov used them.</p>
+  <div class="tree"><table>
+    <tr><td>Run the method</td><td><b>5 tools.</b> <code>skill-to-use</code> picks the source. <code>thesis-builder</code> sets the steps and the four gates. <code>credit-cycle</code> and <code>fed-rate-hike</code> route to chapters and compare authors. <code>credit-scenario-grid</code> prices the scenarios.</td></tr>
+    <tr><td>Chain: supply and where the debt sits</td><td><code>bis-building-ai-on-credit</code>, <code>van-nieuwerburgh-financing-ai-buildout</code>, <code>chaudhary-corporate-bond-multipliers</code>, <code>fed-bank-lending-to-private-credit</code></td></tr>
+    <tr><td>Chain: why a boom builds and where it is fragile</td><td><code>dalio-big-debt-crises</code>, <code>cassidy-how-markets-fail</code>, <code>hayford-malliaris-asset-prices-crisis</code>, <code>cowen-risk-and-business-cycles</code>, <code>claessens-financial-globalization</code>, <code>koo-balance-sheet-recession</code></td></tr>
+    <tr><td>Chain: the Fed path</td><td><code>axilrod-inside-the-fed</code>, <code>willer-trading-global-macro</code>, with <code>fed-rate-hike</code> as the router</td></tr>
+    <tr><td>Chain: how to draw it</td><td><code>simonian-computational-global-macro</code> gives the causal graph. <code>papic-geopolitical-alpha</code> gives the decision tree.</td></tr>
+    <tr><td>What is priced in</td><td><code>ilmanen-investing-amid-low-expected-returns</code> turns a spread into an expected return. <code>shahidi-balanced-asset-allocation</code>: only the unexpected change moves returns. <code>satchell-forecasting-expected-returns</code>: pricing weights are not beliefs.</td></tr>
+    <tr><td>After the freeze: past episodes</td><td><b>Case only.</b> <code>gurevich-trades-of-march-2020</code>, <code>drobny-inside-the-house-of-money</code>, <code>drobny-invisible-hands</code>, and the case chapters of Dalio and Van Nieuwerburgh</td></tr>
+    <tr><td>Scenarios and sizes</td><td><code>credit-scenario-grid</code> computes. <code>rozanov-global-macro-theory-practice</code> gives the grid with joint probabilities. <code>willer-trading-global-macro</code> gives rules that the run checks against today's readings.</td></tr>
+    <tr><td>Falsifiers and warning signs</td><td><code>schularick-taylor-credit-booms</code>, <code>schulte-credit-driven-economy</code>, <code>campbell-in-search-of-distress-risk</code>, and the bubble checklist of <code>dalio-big-debt-crises</code></td></tr>
+    <tr><td>Argue against itself</td><td><code>willer-trading-global-macro</code> ch11 gives the strongest objection: supply follows demand. <code>bis-building-ai-on-credit</code> sec04 gives the second.</td></tr>
+    <tr><td>Not used for this question</td><td>Six skills on sovereign debt, currencies, hyperinflation, equity events and world order: <code>dalio-how-countries-go-broke</code>, <code>eichengreen-capital-flows-crises</code>, <code>christodoulakis-european-periphery-debt-crisis</code>, <code>bresciani-turroni-economics-of-inflation</code>, <code>suria-event-driven-edge</code>, <code>dalio-changing-world-order</code></td></tr>
+  </table></div>
+  <p class="cap">A different thesis moves the skills. A question on a currency crisis would bring the six unused skills to the front.</p>
+</section>
+
+<section>
+  <span class="eyebrow">Diagram 6 · the model proposes, the script decides</span>
+  <h2>Six checks stand between the analysis and your inbox</h2>
+  <p>The four gates apply to each theme separately.</p>
+  <div class="checks">
+    <div class="chk"><span class="by">Gate</span><b>The axis is a real series</b><span>A named spread or ratio with history, not a story.</span></div>
+    <div class="chk"><span class="by">Gate</span><b>The memo says what is priced in</b><span>Without this there is no edge to discuss.</span></div>
+    <div class="chk"><span class="by">Gate</span><b>At least one falsifier</b><span>A thesis with no falsifier is published as a candidate theme only.</span></div>
+    <div class="chk"><span class="by">Gate</span><b>No trades</b><span>Strategy families at most. No legs, sizes, hedge ratios or stops.</span></div>
+    <div class="chk"><span class="by">Script</span><b>Scenario grid</b><span>Probabilities must sum to one, and every computed number comes from the script.</span></div>
+    <div class="chk"><span class="by">Script</span><b>Number check</b><span>Every number in the email must exist in the working memo, the grid or the readings.</span></div>
+  </div>
+  <p class="cap">The email is written in a house style and passes three style passes. The number check runs after them, so a rewrite cannot change a figure.</p>
+</section>
+
+<section>
+  <span class="eyebrow">What you receive</span>
+  <h2>Three outputs from each run</h2>
+  <div class="checks">
+    <div class="chk"><b>An email of about 1,300 words</b><span>The first paragraph is the full summary: what changed, the fact that qualifies it, and the thesis.</span></div>
+    <div class="chk"><b>A one-page view with charts</b><span>The causal chain, the axis, the scenarios, expected move against last month, and where sources disagree.</span></div>
+    <div class="chk"><b>A working memo</b><span>The long version with every source. The next run starts from it.</span></div>
+    <div class="chk"><b>A record of doubt</b><span>Disagreements are reported with both sides and are never settled by the agent.</span></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Limits by design</span>
+  <h2>What the agent never does</h2>
+  <div class="never">
+    <div>It never proposes a trade, a size or a hedge.</div>
+    <div>It never follows an instruction found in a post, an email or a web page.</div>
+    <div>It never posts, likes, follows or replies on X.</div>
+    <div>It never sends mail to an address outside the recipients file.</div>
+    <div>It never publishes the X posts. They stay on the local disk.</div>
+    <div>It never speaks for a book from general knowledge.</div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Diagram 7 · the repository</span>
+  <h2>What is in the repository, and what stays off it</h2>
+  <div class="tree"><table>
+    <tr><td>cycle/run_cycle.sh</td><td>The job. Cron starts it every two days at 07:10.</td><td><span class="pill pub">public</span></td></tr>
+    <tr><td>cycle/*_prompt.md</td><td>The instructions of each agent, one file for each.</td><td><span class="pill pub">public</span></td></tr>
+    <tr><td>cycle/*-settings.json, guard_*.py</td><td>The permission files and the guards.</td><td><span class="pill pub">public</span></td></tr>
+    <tr><td>cycle/check_numbers.py, build_view.py</td><td>The number check and the page builder.</td><td><span class="pill pub">public</span></td></tr>
+    <tr><td>cycle/style_guide.md</td><td>The house style of the memo and the email.</td><td><span class="pill pub">public</span></td></tr>
+    <tr><td>runs/&lt;date&gt;/</td><td>Memo, email, scenario grid, skill sweep and page of each run.</td><td><span class="pill pub">public</span></td></tr>
+    <tr><td>corpus/, cycle/backfill/files/</td><td>The X posts and their history.</td><td><span class="pill loc">local only</span></td></tr>
+    <tr><td>runs/&lt;date&gt;/evidence/</td><td>Summaries of posts and of newsletter mail.</td><td><span class="pill loc">local only</span></td></tr>
+    <tr><td>cycle/recipients.txt</td><td>The addresses that may receive the email.</td><td><span class="pill loc">local only</span></td></tr>
+  </table></div>
+  <p class="cap">The skill library lives outside the repository, in <code>~/.agents/skills</code>. A sister repository, <code>credit-pressure-screen</code>, ranks borrowers by funding pressure.</p>
+</section>
+
+<section>
+  <span class="eyebrow">When a step fails</span>
+  <h2>A failure makes the note smaller, never wrong</h2>
+  <div class="checks">
+    <div class="chk"><b>X is logged out or Chrome is closed</b><span>The run continues, and the note says that X was not refreshed.</span></div>
+    <div class="chk"><b>The scenario grid fails three times</b><span>The previous probabilities are restored, and the note says so.</span></div>
+    <div class="chk"><b>The number check fails</b><span>The note says so in its first paragraph.</span></div>
+    <div class="chk"><b>No email file exists</b><span>Nothing is sent. The log records the reason.</span></div>
+  </div>
+</section>
+
+<section>
+  <span class="eyebrow">Open gaps on 23 Nov 2026</span>
+  <h2>Things that do not work yet</h2>
+  <div class="checks">
+    <div class="chk"><b>The theme split is not built</b><span>Today the agent writes one thesis with one axis. Diagram 3 shows the intended form.</span></div>
+    <div class="chk"><b>The published page does not update itself</b><span>The job rebuilds the page file. A person or a session must republish the link.</span></div>
+    <div class="chk"><b>History of posts is incomplete</b><span>32 of about 207 account-months are collected. A nightly job adds more.</span></div>
+    <div class="chk"><b>The style passes are not proven unattended</b><span>They were skipped in one run because of a file permission. The repair awaits its first run.</span></div>
+    <div class="chk"><b>The 17 accounts are one person's follow list</b><span>The view of "the crowd" has that bias.</span></div>
+  </div>
+</section>
+
+<footer>Research only. Scenario probabilities are proposals that a person must adopt. Described on 2026-11-23.</footer>
+</div>
+</body>
+</html>
