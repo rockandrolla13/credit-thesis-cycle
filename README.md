@@ -6,6 +6,8 @@ The thesis it maintains now: **how much of next year's AI debt supply do US cred
 
 The same description with styled diagrams is in [`docs/agent.html`](docs/agent.html). Each diagram is also a separate image in [`docs/diagrams/`](docs/diagrams/). The latest one-page view of the thesis is `runs/<date>/view.html`.
 
+Two working papers sit beside it: [`docs/step1-ideas.md`](docs/step1-ideas.md) lists the ideas the skill library gave for the four inputs of step 1, and [`docs/step1-improvements.md`](docs/step1-improvements.md) proposes how to improve step 1.
+
 ## 1. The loop
 
 One run has six steps. A model does three of them. Plain scripts do the other three, because a script cannot be talked into a different result.
