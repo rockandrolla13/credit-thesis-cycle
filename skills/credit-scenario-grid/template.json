@@ -1,0 +1,43 @@
+{
+  "as_of": "YYYY-MM-DD",
+  "horizon": "YYYY-MM-DD",
+  "horizon_months": 6,
+  "findings": [],
+  "limits": [],
+  "calibration": [],
+  "spine": [
+    {"id": "S1", "name": "Calm", "p": 0.4, "p_source": "PM_assumption", "evidence": [],
+     "test": "Otherwise.", "observables": [{"series": "FRED BAMLH0A0HYM2", "threshold": "under 300bp at the horizon"}]},
+    {"id": "S2", "name": "Grind", "p": 0.3, "p_source": "PM_assumption", "evidence": [],
+     "test": "Third test.", "observables": [{"series": "FRED DFEDTARU", "threshold": "4.50 or more at the horizon"}]},
+    {"id": "S3", "name": "Slowdown", "p": 0.2, "p_source": "PM_assumption", "evidence": [],
+     "test": "Second test.", "observables": [{"series": "ISM manufacturing PMI", "threshold": "under 50 for two months"}]},
+    {"id": "S4", "name": "Accident", "p": 0.1, "p_source": "PM_assumption", "evidence": [],
+     "test": "First test.", "observables": [{"series": "Fed H.4.1", "threshold": "a new emergency facility"}]}
+  ],
+  "relations": [{"name": "HY minus IG", "a": "HY", "b": "IG", "op": "diff"}],
+  "rows": [
+    {"id": "IG", "level": "asset_class", "axis": "ICE BofA US Corporate OAS (FRED BAMLC0A0CM)", "driver": "Supply, rates, growth.",
+     "now": 100, "spread_duration": 6.6, "recon_tol_bp": 5,
+     "scenarios": [
+       {"name": "Calm", "from": {"S1": -10}, "why": "Demand absorbs supply."},
+       {"name": "Grind", "from": {"S2": 10}, "why": "Supply outruns demand."},
+       {"name": "Slowdown", "from": {"S3": 40}, "why": "Ratings fall."},
+       {"name": "Accident", "from": {"S4": 110}, "why": "Forced liquidation."}]},
+    {"id": "HY", "level": "asset_class", "axis": "ICE BofA US High Yield OAS (FRED BAMLH0A0HYM2)", "driver": "Defaults, funding access.",
+     "now": 350, "spread_duration": 3.1, "recon_tol_bp": 25,
+     "scenarios": [
+       {"name": "Calm", "from": {"S1": -40}, "why": "Equity volatility fades."},
+       {"name": "Grind", "from": {"S2": 20}, "why": "Coupons reset higher."},
+       {"name": "Slowdown", "from": {"S3": 200}, "why": "Default expectations rise."},
+       {"name": "Accident", "from": {"S4": 500}, "why": "Primary market closes."}]},
+    {"id": "IG.Technology", "level": "sector", "parent": "IG", "group": "sector", "weight": 1.0,
+     "axis": "Sector OAS change against today", "driver": "Net bond supply.",
+     "scenarios": [
+       {"name": "Calm", "from": {"S1": -12}, "why": "Concessions shrink."},
+       {"name": "Grind", "from": {"S2": 12}, "why": "The supply lands here."},
+       {"name": "Slowdown, capex cut", "from": {"S3": {"frac": 0.5, "dx": 20}}, "why": "Less borrowing.", "observable": "Capex guidance cut by 10% or more"},
+       {"name": "Slowdown, capex kept", "from": {"S3": {"frac": 0.5, "dx": 60}}, "why": "Borrowing into weak revenue.", "observable": "Capex guidance held"},
+       {"name": "Accident", "from": {"S4": 110}, "why": "No safe sector."}]}
+  ]
+}

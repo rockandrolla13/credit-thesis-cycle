@@ -4,7 +4,7 @@ An agent that keeps one credit thesis current. Every two days it reads the marke
 
 The thesis it maintains now: **how much of next year's AI debt supply do US credit spreads already price?** A different question can replace this one.
 
-The same description with styled diagrams is in [`docs/agent.html`](docs/agent.html). The latest one-page view of the thesis is `runs/<date>/view.html`.
+The same description with styled diagrams is in [`docs/agent.html`](docs/agent.html). Each diagram is also a separate image in [`docs/diagrams/`](docs/diagrams/). The latest one-page view of the thesis is `runs/<date>/view.html`.
 
 ## 1. The loop
 
@@ -83,7 +83,7 @@ Ten accounts that repeat one claim count as one narrative and one consensus sign
 
 ## 5. Which skills feed which step
 
-A skill is a book or a paper turned into chapter files. The library has 35 skills and lives outside this repository, in `~/.agents/skills`. The table shows where each one entered in the run of 2026-11-23.
+A skill is a book or a paper turned into chapter files. The library has 35 skills. A snapshot of 2026-11-23 is in [`skills/`](skills/). The job reads the live copy in `~/.agents/skills`. The table shows where each one entered in the run of 2026-11-23.
 
 | Step | Skills |
 |---|---|
@@ -162,6 +162,22 @@ The email follows `cycle/style_guide.md` and passes three style passes. The numb
 3. The history of posts is incomplete: 32 of about 207 account-months.
 4. The style passes are not proven unattended. One run skipped them because of a file permission. The repair awaits its first run.
 5. The 17 accounts are one person's follow list, so the view of "the crowd" has that bias.
+
+## Diagrams as images
+
+- [The loop](docs/diagrams/01-the-loop.png)
+- [Three narrow agents](docs/diagrams/02-three-narrow-agents.png)
+- [One thesis, several themes](docs/diagrams/03-theme-split.png)
+- [The reasoning order](docs/diagrams/04-reasoning-order.png)
+- [Which skills feed which step](docs/diagrams/05-skills-by-step.png)
+- [The checks](docs/diagrams/06-checks.png)
+- [What each run writes](docs/diagrams/07-outputs.png)
+- [What the agent never does](docs/diagrams/08-never.png)
+- [The repository](docs/diagrams/09-repository.png)
+- [When a step fails](docs/diagrams/10-failures.png)
+- [Open gaps](docs/diagrams/11-open-gaps.png)
+
+![One thesis, several themes](docs/diagrams/03-theme-split.png)
 
 Research only. Scenario probabilities are proposals that a person must adopt.
 
