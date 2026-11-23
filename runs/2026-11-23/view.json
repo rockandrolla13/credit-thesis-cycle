@@ -1,0 +1,120 @@
+{
+ "schema": 1,
+ "run_date": "2026-11-23",
+ "question": "How much AI debt supply do US credit spreads price?",
+ "view": "Top-rated bond spreads price about two thirds of next year's AI debt supply, while bank loans, private credit and off-balance-sheet vehicles stay unpriced.",
+ "lede": "Every credit spread widened with the {print_date} prints, and the axis rose to {axis}. No falsifier triggered and no probability moved. Two X accounts describe an equity rebound on 23 Nov, so these spreads may now be too wide.",
+ "chain": {
+  "source": {
+   "title": "AI capex",
+   "detail": "$230bn in the third quarter, against $199bn operating cash flow",
+   "detail_short": "Q3: $230bn, against $199bn operating cash flow"
+  },
+  "verb": "borrows",
+  "supply": {
+   "title": "Debt supply",
+   "detail": "A few AA and A companies sell 14% to 20% of 2026 IG issuance",
+   "detail_short": "A few AA and A companies, 14% to 20% of IG issuance"
+  },
+  "destinations": [
+   {"name": "Public IG bonds", "shows_in": "AA to BBB ratio, {axis} today", "status": "priced", "status_text": "Priced", "status_sub": "about two thirds"},
+   {"name": "High yield and weak AI names", "shows_in": "CCC spread {CCC}, a three-year high", "status": "repriced", "status_text": "Repriced", "status_sub": "weak AI names"},
+   {"name": "Bank loans", "shows_in": "Two loan sales met weak demand", "status": "not_priced", "status_text": "Not priced", "status_sub": "two marks only"},
+   {"name": "Private credit", "shows_in": "No bond price", "status": "not_priced", "status_text": "Not priced", "status_sub": "in bonds"},
+   {"name": "Off-balance-sheet vehicles", "shows_in": "Outside the bond indices", "status": "not_priced", "status_text": "Not priced", "status_sub": "in bonds"}
+  ],
+  "caption": "Top-rated bond spreads carry the priced part, and bonds do not price the debt in loans, private credit and vehicles.",
+  "note": "Part of the supply effect lands in Treasury yields, in a size the memo cannot state. The IG index spread, at {IG}, shows little of it. A second bank met weak demand for a data-centre loan sale. Wider spreads also slow projects, and slower projects need less debt."
+ },
+ "axis": {
+  "caption": "The ratio rose in a flight from risk, and it sits above the 0.52 falsifier line.",
+  "note": "The grid puts the ratio near {ratio_S2} if 2027 supply arrives in full."
+ },
+ "scenarios": {
+  "labels": {"S3": "AI digestion (capex cut)"},
+  "short": {"S1": "Absorbed", "S2": "Rates grind", "S3": "AI digestion", "S4": "Hard landing", "S5": "Accident"},
+  "note": "No probability changed in this update. The moves are changes from today's wider spreads."
+ },
+ "falsifiers": {
+  "items": [
+   {
+    "id": "F1",
+    "claim": "Top-rated spreads carry a supply premium",
+    "observable": "AA to BBB ratio, FRED",
+    "threshold": "Below 0.52 before {horizon}, while none of the five largest spenders has cut 2027 capex guidance",
+    "today": "{axis}, up from the previous memo",
+    "status": "not_triggered",
+    "meter": {"reading": "axis", "threshold": 0.52, "side": "below"}
+   },
+   {
+    "id": "F2",
+    "claim": "This is a repricing, not a break",
+    "observable": "IG primary calendar and Fed H.4.1",
+    "threshold": "Five business days with no IG deals outside holidays, or a new Fed emergency facility",
+    "today": "No such report. Thanksgiving week does not count.",
+    "status": "not_triggered"
+   },
+   {
+    "id": "F3",
+    "claim": "Weak credit is repriced",
+    "observable": "CCC spread, FRED",
+    "threshold": "Above 1,700bp",
+    "today": "{CCC} on {CCC_date}, {CCC_chg2d} in two days",
+    "status": "not_triggered",
+    "meter": {"reading": "CCC", "threshold": 1700, "side": "above"}
+   },
+   {
+    "id": "F4",
+    "claim": "The Fed keeps hiking",
+    "observable": "Fed funds upper bound, FRED",
+    "threshold": "Still 4.00% after the January 2027 meeting",
+    "today": "{fed_upper}. The next meeting is 9 Dec. It cannot trigger before late January.",
+    "status": "not_triggered"
+   }
+  ],
+  "note": "No falsifier is triggered or close. F1 moved away from its threshold, and F3 moved toward its threshold."
+ },
+ "disagreements": {
+  "groups": [
+   {
+    "title": "In the memo",
+    "items": [
+     {"question": "Does supply matter?", "a_who": "Willer", "a": "No, for monthly issuance.", "b_who": "Dalio and Cassidy", "b": "A debt-financed build is the core risk.", "why": "They measure different things."},
+     {"question": "Does supply show in spreads?", "a_who": "BIS study", "a": "AI news days did not move the IG index spread.", "b_who": "JunkBondInvestor and the FRED ratio", "b": "AA spreads press against A and BBB spreads.", "why": "The first tests single days on the index. The second reads the rating mix over a year."},
+     {"question": "Is HY wide?", "a_who": "Three-year percentile", "a": "Yes. HY at {HY} is at the {HY_pctile} percentile.", "b_who": "Ilmanen's long-run average", "b": "No. The 1989 to 2020 average is about 520bp."},
+     {"question": "Is a capex cut good for credit?", "a_who": "JunkBondInvestor and PIMCO", "a": "Yes for the bonds of the largest spenders, if all cut together. Slower building cuts issuance.", "b_who": "The same letter", "b": "Signed leases keep fixed claims rising."},
+     {"question": "How large is the supply from the largest cloud companies this year?", "a_who": "An LSEG count", "a": "$370.7bn.", "b_who": "The X account of JunkBondInvestor, 20 Nov", "b": "$620bn, with no definition."},
+     {"question": "How risky are bank lines to lending funds?", "a_who": "Fed staff", "a": "The direct risk is limited, on 2024 data.", "b_who": "Schulte", "b": "Hidden leverage sits there."},
+     {"question": "Will the Fed hike in December?", "a_who": "Market pricing before the fall", "a": "About 96% odds of a hike.", "b_who": "One history table", "b": "No hike since 1990 with the VIX above 30. The VIX closed at {vix} on {print_date}.", "why": "No source gives the odds after the fall."},
+     {"question": "How large is 2027 supply?", "a_who": "Bank forecasts", "a": "$420bn to $450bn of IG debt from the largest cloud companies.", "b_who": "Wider definitions", "b": "Much larger counts."},
+     {"question": "Did the Nvidia board reinstate its former chief executive on 23 Nov?", "a_who": "One X account", "a": "Yes, with the shares up 25% before the open.", "b_who": "A web search", "b": "A report says the board does not intend to do so."},
+     {"question": "How large is the SpaceX chip financing, and can the chips leave Earth?", "a_who": "One newsletter", "a": "$44bn, and lenders barred it.", "b_who": "Another newsletter", "b": "$43bn, and the final terms are unclear."}
+    ]
+   }
+  ]
+ },
+ "attention": {
+  "boxes": {
+   "strong_quiet": {"title": "AA supply premium", "text": "One credit letter named it on 22 Nov", "trend": "no new mention today"},
+   "strong_crowded": {"title": "AI debt is a problem", "text": "Many posts and letters. Weak credit shows it"},
+   "thin_quiet": {"title": "Bank-loan and vehicle store of AI debt", "text": "One account, two loan sales, the BIS loss map"},
+   "thin_crowded": null
+  },
+  "caption": "The AA supply premium has strong facts and rising attention, after one widely read letter named it on 22 Nov.",
+  "note": "The bank-loan claim gained a second loan sale today, but its facts stay thin."
+ },
+ "pipeline": {
+  "inputs": [
+   {"title": "17 X accounts", "text": "no collection failure"},
+   {"title": "Newsletters", "text": "4 new threads read"},
+   {"title": "FRED readings", "text": "prints of {print_date}"},
+   {"title": "Web checks", "text": "none of 4 confirmed"}
+  ],
+  "stages": [
+   {"title": "35 skills", "text": "23 give a method"},
+   {"title": "Scenario grid", "text": "{grid_rows} rows, {grid_scenarios} scenarios"},
+   {"title": "Memo", "text": "four gates, all pass"}
+  ]
+ },
+ "limits": "All credit spreads are dated {print_date}. Two X accounts describe an equity rebound on 23 Nov, so the spreads may now be too wide. None of the four web searches confirmed its fact. The 17 X accounts come from one person's follow list."
+}

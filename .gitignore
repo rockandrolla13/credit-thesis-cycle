@@ -1,0 +1,20 @@
+# never commit: mail recipients, raw browser captures, run state, backups
+cycle/recipients.txt
+cycle/raw/
+cycle/state/
+*.bak
+__pycache__/
+test-runs/
+# X posts stay local: private corpus, never pushed
+corpus/
+cycle/backfill/files/
+cycle/backfill/raw/
+cycle/backfill/evidence/
+runs/*/evidence/x_new.md
+test-runs/
+*.bak2
+# Summaries of X posts and of private mail stay local
+runs/*/evidence/
+runs/*/followup/x_candidates.md
+# Third-party style references: local copies only
+cycle/style_refs/

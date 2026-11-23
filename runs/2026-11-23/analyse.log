@@ -1,0 +1,4 @@
+[claude-code:unrecognized_model] {"model":"claude-fable-5-2","query_source":"sdk"}
+DONE: 2026-11-23 update written. Spreads are wider on the 20 Nov prints (IG 98bp, HY 376bp, CCC 1,402bp, axis 0.590), the thesis stands, no probability moved, no falsifier triggered, and the grid, both number checks and the view check passed.
+
+The humaniser passes in step 14 did not run. Read was denied on both style-skill files, so `thesis.md` and `email.txt` follow only the style guide and the written rules. This is recorded in `styled/humaniser_log.md` and in the memo limits. Memory was also unavailable: OMEGA was denied and GBrain did not connect.

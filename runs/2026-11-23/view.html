@@ -1,0 +1,1012 @@
+<title>AI Debt Pricing View</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column readout. The view first, then the diagrams in a fixed order. Diagrams sit on the page ground, tiles only for the falsifiers. */
+:root {
+  --bg: #f2f5f2; --surface: #fbfcfb; --ink: #16211c; --muted: #56655d; --line: #d3dbd5;
+  --accent: #0f6b54; --accent-soft: #dcece6; --warn: #8a5200; --warn-soft: #f6ead3;
+  --no: #a23a2a; --no-soft: #f6e1dc;
+  --s1: #f1e2c4; --s2: #e2c48a; --s3: #c99a4a; --s4: #9a6a17; --s5: #5e3d05;
+  --s1t: #16211c; --s2t: #16211c; --s3t: #16211c; --s4t: #ffffff; --s5t: #ffffff;
+  --display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111815; --surface: #18211d; --ink: #e5ece7; --muted: #9baba2; --line: #2c3a33;
+    --accent: #62cdae; --accent-soft: #1d332c; --warn: #e2ad52; --warn-soft: #33290f;
+    --no: #ef8f7d; --no-soft: #3a1f1a;
+    --s1: #3a2d12; --s2: #5c4514; --s3: #7d5a17; --s4: #c08f35; --s5: #ecc880;
+    --s1t: #f3ece0; --s2t: #f3ece0; --s3t: #ffffff; --s4t: #16110a; --s5t: #16110a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111815; --surface: #18211d; --ink: #e5ece7; --muted: #9baba2; --line: #2c3a33;
+  --accent: #62cdae; --accent-soft: #1d332c; --warn: #e2ad52; --warn-soft: #33290f;
+  --no: #ef8f7d; --no-soft: #3a1f1a;
+  --s1: #3a2d12; --s2: #5c4514; --s3: #7d5a17; --s4: #c08f35; --s5: #ecc880;
+  --s1t: #f3ece0; --s2t: #f3ece0; --s3t: #ffffff; --s4t: #16110a; --s5t: #16110a;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.wrap { max-width: 820px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 48px; }
+h1, h2, h3, p, ol, ul, figure { margin: 0; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.65rem, 5vw, 2.35rem); line-height: 1.12; letter-spacing: -0.02em; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 500; font-size: 1.35rem; padding-bottom: 8px; border-bottom: 2px solid var(--ink); text-wrap: balance; }
+h3 { font-family: var(--body); font-weight: 600; font-size: 1rem; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+.lede { color: var(--muted); margin-top: 14px; max-width: 62ch; }
+.asof { font-family: var(--mono); font-size: 0.82rem; margin-top: 18px; padding: 8px 12px; border: 1px solid var(--ink); display: inline-block; }
+.terms { font-size: 0.88rem; color: var(--muted); max-width: 68ch; margin-top: 14px; }
+section { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+p { max-width: 68ch; }
+figure { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+figcaption, .cap { font-size: 0.9rem; color: var(--muted); max-width: 68ch; }
+.note { background: var(--warn-soft); color: var(--warn); padding: 10px 14px; max-width: 68ch; font-size: 0.93rem; }
+header .note { margin-top: 14px; }
+
+/* diagrams */
+svg.dg { display: block; width: 100%; height: auto; }
+svg.dg-wide { display: none; }
+svg.dg-narrow { max-width: 460px; }
+@media (min-width: 752px) { svg.dg-wide { display: block; } svg.dg-narrow { display: none; } }
+svg text { font-family: var(--body); font-size: 13px; fill: var(--ink); }
+svg .ts { font-size: 12px; }
+svg .tm { font-family: var(--mono); font-size: 12px; fill: var(--muted); letter-spacing: 0.02em; }
+svg .tmn { letter-spacing: -0.02em; }
+svg .tk { fill: var(--ink); }
+svg .tb { font-weight: 600; }
+svg .tmu { fill: var(--muted); }
+svg .tl { font-family: var(--display); font-size: 17px; font-weight: 700; }
+svg .ln { stroke: var(--ink); stroke-width: 1.5; fill: none; }
+svg .lnm { stroke: var(--muted); stroke-width: 1; fill: none; }
+svg .hair { stroke: var(--line); stroke-width: 1; fill: none; }
+svg .ah { fill: var(--ink); stroke: none; }
+svg .box { fill: var(--surface); stroke: var(--line); stroke-width: 1; }
+svg .frame { fill: none; stroke: var(--line); stroke-width: 1; }
+svg .range { fill: var(--accent-soft); stroke: none; }
+svg .zone { fill: var(--no-soft); stroke: none; }
+svg .thr { stroke: var(--no); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+svg .tod { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+svg .dot { fill: var(--ink); stroke: var(--bg); stroke-width: 2; }
+svg .dot-today { fill: var(--accent); stroke: var(--bg); stroke-width: 2; }
+svg .st-priced { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+svg .st-repriced { fill: var(--warn-soft); stroke: var(--warn); stroke-width: 1.5; }
+svg .st-notp { fill: none; stroke: var(--no); stroke-width: 1.5; stroke-dasharray: 5 4; }
+svg .s1 { fill: var(--s1); } svg .s2 { fill: var(--s2); } svg .s3 { fill: var(--s3); } svg .s4 { fill: var(--s4); } svg .s5 { fill: var(--s5); }
+svg .s1t { fill: var(--s1t); } svg .s2t { fill: var(--s2t); } svg .s3t { fill: var(--s3t); } svg .s4t { fill: var(--s4t); } svg .s5t { fill: var(--s5t); }
+
+/* expected move chart */
+svg .mo { fill: var(--muted); }
+svg .ex { fill: var(--accent); }
+svg .seg { stroke: var(--muted); stroke-width: 0.75; }
+.key { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.88rem; color: var(--muted); max-width: none; }
+.key span { display: inline-flex; align-items: center; gap: 7px; }
+.key i { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+.key .sw-mo { background: var(--muted); }
+.key .sw-ex { background: var(--accent); }
+.key .sw-sc { width: 28px; background: linear-gradient(90deg, var(--s1) 0 20%, var(--s2) 20% 40%, var(--s3) 40% 60%, var(--s4) 60% 80%, var(--s5) 80%); outline: 0.75px solid var(--muted); }
+.tbl summary { cursor: pointer; font-size: 0.9rem; color: var(--accent); width: fit-content; }
+.tbl summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.tbl .scroll { overflow-x: auto; margin-top: 10px; }
+.tbl table { border-collapse: collapse; font-size: 0.85rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tbl th, .tbl td { padding: 6px 12px 6px 0; border-bottom: 1px solid var(--line); text-align: right; font-weight: 400; }
+.tbl thead th { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.tbl th:first-child, .tbl td:nth-child(2), .tbl td:nth-child(3) { text-align: left; }
+.tbl tbody th { font-weight: 600; }
+
+/* scenario list */
+.scen { list-style: none; padding: 0; display: flex; flex-direction: column; }
+.scen li { display: grid; grid-template-columns: 28px 1fr auto; column-gap: 12px; row-gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+.scen .sw { width: 28px; height: 22px; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; font-weight: 500; display: grid; place-items: center; align-self: start; }
+.scen .nm { font-weight: 600; min-width: 0; }
+.scen .pp { font-family: var(--mono); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+.scen .mv { grid-column: 2 / -1; color: var(--muted); font-size: 0.93rem; }
+.scen .lb { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); font-weight: 400; margin-left: 6px; white-space: nowrap; }
+
+/* falsifier tiles */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--line); padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.tile .hd { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tile .id { font-family: var(--mono); font-size: 0.82rem; color: var(--accent); }
+.chip { font-family: var(--mono); font-size: 0.75rem; border: 1px solid var(--accent); color: var(--accent); background: var(--accent-soft); padding: 2px 8px; display: inline-flex; align-items: center; gap: 6px; }
+.chip svg { width: 10px; height: 10px; }
+.chip circle { fill: none; stroke: currentColor; stroke-width: 2; }
+.chip-close { border-color: var(--warn); color: var(--warn); background: var(--warn-soft); }
+.chip-trig { border-color: var(--no); color: var(--no); background: var(--no-soft); font-weight: 500; }
+.chip-trig circle { fill: currentColor; }
+.tile dl { margin: 0; display: grid; grid-template-columns: 6.2em 1fr; gap: 6px 10px; font-size: 0.92rem; }
+.tile dt { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+.tile dd { margin: 0; min-width: 0; }
+svg.meter { display: block; width: 100%; max-width: 360px; height: auto; }
+
+/* disagreements */
+.group { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+.dislist { display: flex; flex-direction: column; }
+.dis { padding: 14px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.sides { display: grid; grid-template-columns: 1fr 40px 1fr; gap: 12px; align-items: start; }
+.side { min-width: 0; border-top: 2px solid var(--ink); padding-top: 6px; }
+.side p { font-size: 0.95rem; }
+.who { font-family: var(--mono); font-size: 0.78rem; color: var(--accent); display: block; overflow-wrap: anywhere; }
+svg.vs { width: 40px; height: 20px; display: block; margin-top: 12px; }
+.why { font-size: 0.88rem; color: var(--muted); }
+@media (max-width: 600px) {
+  .sides { grid-template-columns: 1fr; gap: 6px; }
+  svg.vs { transform: rotate(90deg); margin: 4px 0 4px 8px; }
+}
+.foot { max-width: none; border-top: 2px solid var(--ink); padding-top: 14px; font-size: 0.9rem; color: var(--muted); display: flex; flex-direction: column; gap: 8px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">How much AI debt supply do US credit spreads price?</p><h1>Top-rated bond spreads price about two thirds of next year&#x27;s AI debt supply, while bank loans, private credit and off-balance-sheet vehicles stay unpriced.</h1><p class="lede">Every credit spread widened with the 20 Nov prints, and the axis rose to 0.590. No falsifier triggered and no probability moved. Two X accounts describe an equity rebound on 23 Nov, so these spreads may now be too wide.</p><p class="asof">As of 2026-11-23. Research only. Scenario probabilities are proposals.</p><p class="terms">Terms. Capex is capital spending. A spread is the extra yield that a bond pays over Treasuries. IG means investment grade, and HY means high yield. AA, A and BBB are rating tiers inside IG, and CCC is the weakest HY tier. One bp is one hundredth of a percentage point. The horizon is 2027-05-23.</p>
+  </header>
+
+  <section>
+    <h2>The causal chain</h2>
+    <figure>
+      <svg class="dg dg-wide" viewBox="0 0 720 346" role="img" aria-label="AI capex: $230bn in the third quarter, against $199bn operating cash flow. Debt supply: A few AA and A companies sell 14% to 20% of 2026 IG issuance. The debt goes to five places. Public IG bonds: priced, about two thirds. High yield and weak AI names: repriced, weak AI names. Bank loans: not priced, two marks only. Private credit: not priced, in bonds. Off-balance-sheet vehicles: not priced, in bonds." preserveAspectRatio="xMidYMid meet">
+<rect x="70.0" y="1.0" width="250.0" height="80.0" rx="0" class="box"></rect>
+<text x="86.0" y="25.0" class="t tb" text-anchor="start">AI capex</text>
+<text x="86.0" y="47.0" class="ts tmu" text-anchor="start">$230bn in the third quarter,</text>
+<text x="86.0" y="64.0" class="ts tmu" text-anchor="start">against $199bn operating cash flow</text>
+<line x1="320.0" y1="41.0" x2="392.0" y2="41.0" class="ln"/>
+<polygon points="400.0,41.0 392.0,45.0 392.0,37.0" class="ah"/>
+<text x="360.0" y="33.0" class="tm" text-anchor="middle">borrows</text>
+<rect x="400.0" y="1.0" width="250.0" height="80.0" rx="0" class="box"></rect>
+<text x="416.0" y="25.0" class="t tb" text-anchor="start">Debt supply</text>
+<text x="416.0" y="47.0" class="ts tmu" text-anchor="start">A few AA and A companies sell</text>
+<text x="416.0" y="64.0" class="ts tmu" text-anchor="start">14% to 20% of 2026 IG issuance</text>
+<line x1="525.0" y1="81.0" x2="525.0" y2="112.0" class="ln"/>
+<line x1="68.4" y1="112.0" x2="651.6" y2="112.0" class="ln"/>
+<text x="78.4" y="104.0" class="tm" text-anchor="start">WHERE THE DEBT GOES</text>
+<line x1="68.4" y1="112.0" x2="68.4" y2="128.0" class="ln"/>
+<polygon points="68.4,136.0 64.4,128.0 72.4,128.0" class="ah"/>
+<rect x="0.0" y="136.0" width="136.8" height="150.0" rx="0" class="box"></rect>
+<text x="10.0" y="160.0" class="t tb" text-anchor="start">Public IG bonds</text>
+<line x1="0.0" y1="198.0" x2="136.8" y2="198.0" class="hair"/>
+<text x="10.0" y="218.0" class="tm" text-anchor="start">SHOWS IN</text>
+<text x="10.0" y="238.0" class="ts" text-anchor="start">AA to BBB ratio,</text>
+<text x="10.0" y="255.0" class="ts" text-anchor="start">0.590 today</text>
+<rect x="0.0" y="294.0" width="136.8" height="50.0" rx="4" class="st-priced"></rect>
+<text x="68.4" y="315.0" class="t tb" text-anchor="middle">Priced</text>
+<text x="68.4" y="332.0" class="ts" text-anchor="middle">about two thirds</text>
+<line x1="214.2" y1="112.0" x2="214.2" y2="128.0" class="ln"/>
+<polygon points="214.2,136.0 210.2,128.0 218.2,128.0" class="ah"/>
+<rect x="145.8" y="136.0" width="136.8" height="150.0" rx="0" class="box"></rect>
+<text x="155.8" y="160.0" class="t tb" text-anchor="start">High yield and</text>
+<text x="155.8" y="177.0" class="t tb" text-anchor="start">weak AI names</text>
+<line x1="145.8" y1="198.0" x2="282.6" y2="198.0" class="hair"/>
+<text x="155.8" y="218.0" class="tm" text-anchor="start">SHOWS IN</text>
+<text x="155.8" y="238.0" class="ts" text-anchor="start">CCC spread 1,402bp,</text>
+<text x="155.8" y="255.0" class="ts" text-anchor="start">a three-year high</text>
+<rect x="145.8" y="294.0" width="136.8" height="50.0" rx="4" class="st-repriced"></rect>
+<text x="214.2" y="315.0" class="t tb" text-anchor="middle">Repriced</text>
+<text x="214.2" y="332.0" class="ts" text-anchor="middle">weak AI names</text>
+<line x1="360.0" y1="112.0" x2="360.0" y2="128.0" class="ln"/>
+<polygon points="360.0,136.0 356.0,128.0 364.0,128.0" class="ah"/>
+<rect x="291.6" y="136.0" width="136.8" height="150.0" rx="0" class="box"></rect>
+<text x="301.6" y="160.0" class="t tb" text-anchor="start">Bank loans</text>
+<line x1="291.6" y1="198.0" x2="428.4" y2="198.0" class="hair"/>
+<text x="301.6" y="218.0" class="tm" text-anchor="start">SHOWS IN</text>
+<text x="301.6" y="238.0" class="ts" text-anchor="start">Two loan sales</text>
+<text x="301.6" y="255.0" class="ts" text-anchor="start">met weak demand</text>
+<rect x="291.6" y="294.0" width="136.8" height="50.0" rx="4" class="st-notp"></rect>
+<text x="360.0" y="315.0" class="t tb" text-anchor="middle">Not priced</text>
+<text x="360.0" y="332.0" class="ts" text-anchor="middle">two marks only</text>
+<line x1="505.8" y1="112.0" x2="505.8" y2="128.0" class="ln"/>
+<polygon points="505.8,136.0 501.8,128.0 509.8,128.0" class="ah"/>
+<rect x="437.4" y="136.0" width="136.8" height="150.0" rx="0" class="box"></rect>
+<text x="447.4" y="160.0" class="t tb" text-anchor="start">Private credit</text>
+<line x1="437.4" y1="198.0" x2="574.2" y2="198.0" class="hair"/>
+<text x="447.4" y="218.0" class="tm" text-anchor="start">SHOWS IN</text>
+<text x="447.4" y="238.0" class="ts" text-anchor="start">No bond price</text>
+<rect x="437.4" y="294.0" width="136.8" height="50.0" rx="4" class="st-notp"></rect>
+<text x="505.8" y="315.0" class="t tb" text-anchor="middle">Not priced</text>
+<text x="505.8" y="332.0" class="ts" text-anchor="middle">in bonds</text>
+<line x1="651.6" y1="112.0" x2="651.6" y2="128.0" class="ln"/>
+<polygon points="651.6,136.0 647.6,128.0 655.6,128.0" class="ah"/>
+<rect x="583.2" y="136.0" width="136.8" height="150.0" rx="0" class="box"></rect>
+<text x="593.2" y="160.0" class="t tb" text-anchor="start">Off-balance-sheet</text>
+<text x="593.2" y="177.0" class="t tb" text-anchor="start">vehicles</text>
+<line x1="583.2" y1="198.0" x2="720.0" y2="198.0" class="hair"/>
+<text x="593.2" y="218.0" class="tm" text-anchor="start">SHOWS IN</text>
+<text x="593.2" y="238.0" class="ts" text-anchor="start">Outside the</text>
+<text x="593.2" y="255.0" class="ts" text-anchor="start">bond indices</text>
+<rect x="583.2" y="294.0" width="136.8" height="50.0" rx="4" class="st-notp"></rect>
+<text x="651.6" y="315.0" class="t tb" text-anchor="middle">Not priced</text>
+<text x="651.6" y="332.0" class="ts" text-anchor="middle">in bonds</text>
+</svg>
+<svg class="dg dg-narrow" viewBox="0 0 358 672" role="img" aria-label="AI capex: $230bn in the third quarter, against $199bn operating cash flow. Debt supply: A few AA and A companies sell 14% to 20% of 2026 IG issuance. The debt goes to five places. Public IG bonds: priced, about two thirds. High yield and weak AI names: repriced, weak AI names. Bank loans: not priced, two marks only. Private credit: not priced, in bonds. Off-balance-sheet vehicles: not priced, in bonds." preserveAspectRatio="xMidYMid meet">
+<rect x="1.0" y="1.0" width="356.0" height="62.0" rx="0" class="box"></rect>
+<text x="14.0" y="24.0" class="t tb" text-anchor="start">AI capex</text>
+<text x="14.0" y="45.0" class="ts tmu" text-anchor="start">Q3: $230bn, against $199bn operating cash flow</text>
+<line x1="40.0" y1="63.0" x2="40.0" y2="85.0" class="ln"/>
+<polygon points="40.0,93.0 36.0,85.0 44.0,85.0" class="ah"/>
+<text x="52.0" y="83.0" class="tm" text-anchor="start">borrows</text>
+<rect x="1.0" y="93.0" width="356.0" height="62.0" rx="0" class="box"></rect>
+<text x="14.0" y="116.0" class="t tb" text-anchor="start">Debt supply</text>
+<text x="14.0" y="137.0" class="ts tmu" text-anchor="start">A few AA and A companies, 14% to 20% of IG issuance</text>
+<line x1="14.0" y1="155.0" x2="14.0" y2="626.0" class="ln"/>
+<text x="30.0" y="177.0" class="tm" text-anchor="start">WHERE THE DEBT GOES</text>
+<line x1="14.0" y1="234.0" x2="22.0" y2="234.0" class="ln"/>
+<polygon points="30.0,234.0 22.0,238.0 22.0,230.0" class="ah"/>
+<rect x="30.0" y="190.0" width="327.0" height="88.0" rx="0" class="box"></rect>
+<text x="42.0" y="213.0" class="t tb" text-anchor="start">Public IG bonds</text>
+<text x="42.0" y="233.0" class="tm" text-anchor="start">SHOWS IN</text>
+<text x="42.0" y="251.0" class="ts" text-anchor="start">AA to BBB ratio, 0.590 today</text>
+<rect x="240.0" y="208.0" width="108.0" height="52.0" rx="4" class="st-priced"></rect>
+<text x="294.0" y="230.0" class="t tb" text-anchor="middle">Priced</text>
+<text x="294.0" y="247.0" class="ts" text-anchor="middle">about two thirds</text>
+<line x1="14.0" y1="332.0" x2="22.0" y2="332.0" class="ln"/>
+<polygon points="30.0,332.0 22.0,336.0 22.0,328.0" class="ah"/>
+<rect x="30.0" y="288.0" width="327.0" height="88.0" rx="0" class="box"></rect>
+<text x="42.0" y="311.0" class="t tb" text-anchor="start">High yield and weak AI names</text>
+<text x="42.0" y="331.0" class="tm" text-anchor="start">SHOWS IN</text>
+<text x="42.0" y="349.0" class="ts" text-anchor="start">CCC spread 1,402bp,</text>
+<text x="42.0" y="365.0" class="ts" text-anchor="start">a three-year high</text>
+<rect x="240.0" y="306.0" width="108.0" height="52.0" rx="4" class="st-repriced"></rect>
+<text x="294.0" y="328.0" class="t tb" text-anchor="middle">Repriced</text>
+<text x="294.0" y="345.0" class="ts" text-anchor="middle">weak AI names</text>
+<line x1="14.0" y1="430.0" x2="22.0" y2="430.0" class="ln"/>
+<polygon points="30.0,430.0 22.0,434.0 22.0,426.0" class="ah"/>
+<rect x="30.0" y="386.0" width="327.0" height="88.0" rx="0" class="box"></rect>
+<text x="42.0" y="409.0" class="t tb" text-anchor="start">Bank loans</text>
+<text x="42.0" y="429.0" class="tm" text-anchor="start">SHOWS IN</text>
+<text x="42.0" y="447.0" class="ts" text-anchor="start">Two loan sales met weak demand</text>
+<rect x="240.0" y="404.0" width="108.0" height="52.0" rx="4" class="st-notp"></rect>
+<text x="294.0" y="426.0" class="t tb" text-anchor="middle">Not priced</text>
+<text x="294.0" y="443.0" class="ts" text-anchor="middle">two marks only</text>
+<line x1="14.0" y1="528.0" x2="22.0" y2="528.0" class="ln"/>
+<polygon points="30.0,528.0 22.0,532.0 22.0,524.0" class="ah"/>
+<rect x="30.0" y="484.0" width="327.0" height="88.0" rx="0" class="box"></rect>
+<text x="42.0" y="507.0" class="t tb" text-anchor="start">Private credit</text>
+<text x="42.0" y="527.0" class="tm" text-anchor="start">SHOWS IN</text>
+<text x="42.0" y="545.0" class="ts" text-anchor="start">No bond price</text>
+<rect x="240.0" y="502.0" width="108.0" height="52.0" rx="4" class="st-notp"></rect>
+<text x="294.0" y="524.0" class="t tb" text-anchor="middle">Not priced</text>
+<text x="294.0" y="541.0" class="ts" text-anchor="middle">in bonds</text>
+<line x1="14.0" y1="626.0" x2="22.0" y2="626.0" class="ln"/>
+<polygon points="30.0,626.0 22.0,630.0 22.0,622.0" class="ah"/>
+<rect x="30.0" y="582.0" width="327.0" height="88.0" rx="0" class="box"></rect>
+<text x="42.0" y="605.0" class="t tb" text-anchor="start">Off-balance-sheet vehicles</text>
+<text x="42.0" y="625.0" class="tm" text-anchor="start">SHOWS IN</text>
+<text x="42.0" y="643.0" class="ts" text-anchor="start">Outside the bond indices</text>
+<rect x="240.0" y="600.0" width="108.0" height="52.0" rx="4" class="st-notp"></rect>
+<text x="294.0" y="622.0" class="t tb" text-anchor="middle">Not priced</text>
+<text x="294.0" y="639.0" class="ts" text-anchor="middle">in bonds</text>
+</svg>
+
+      <figcaption>Top-rated bond spreads carry the priced part, and bonds do not price the debt in loans, private credit and vehicles.</figcaption>
+    </figure>
+    <p>Part of the supply effect lands in Treasury yields, in a size the memo cannot state. The IG index spread, at 98bp, shows little of it. A second bank met weak demand for a data-centre loan sale. Wider spreads also slow projects, and slower projects need less debt.</p>
+  </section>
+
+  <section>
+    <h2>The operational axis</h2>
+    <p>The axis is the AA spread divided by the BBB spread, from FRED. Today the AA spread is 72bp and the BBB spread is 122bp.</p>
+    <figure>
+      <svg class="dg dg-wide" viewBox="0 0 720 280" role="img" aria-label="Scale of the AA to BBB spread ratio from 0.36 to 0.68. Three-year range 0.388 to 0.616, mean 0.476. Today 0.590. Falsifier line 0.52. Scenario ratios: 0.60, 0.65, 0.47, 0.52, 0.55." preserveAspectRatio="xMidYMid meet">
+<rect x="77.9" y="68.0" width="487.3" height="16.0" rx="0" class="range"></rect>
+<rect x="18.0" y="86.0" width="342.0" height="5.0" rx="0" class="zone"></rect>
+<line x1="18.0" y1="76.0" x2="702.0" y2="76.0" class="hair"/>
+<line x1="265.9" y1="64.0" x2="265.9" y2="88.0" class="lnm"/>
+<text x="265.9" y="58.0" class="tm" text-anchor="middle">mean 0.476</text>
+<line x1="360.0" y1="56.0" x2="360.0" y2="136.0" class="thr"/>
+<line x1="360.0" y1="172.0" x2="360.0" y2="198.0" class="thr"/>
+<text x="352.0" y="128.0" class="t tb" text-anchor="end">F1 triggers below 0.52</text>
+<line x1="509.6" y1="44.0" x2="509.6" y2="90.0" class="tod"/>
+<line x1="509.6" y1="172.0" x2="509.6" y2="198.0" class="tod"/>
+<circle cx="509.6" cy="76" r="6.5" class="dot-today"/>
+<text x="509.6" y="18.0" class="tl" text-anchor="middle">Today 0.590</text>
+<text x="509.6" y="36.0" class="ts tmu" text-anchor="middle">94th percentile of three years</text>
+<text x="77.9" y="104.0" class="tm" text-anchor="middle">low 0.388</text>
+<text x="565.2" y="104.0" class="tm" text-anchor="middle">peak 0.616 on 2 Sep 2026</text>
+<text x="18.0" y="162.0" class="tm" text-anchor="start">SIX-MONTH RATIO IN EACH SCENARIO, PROPOSALS</text>
+<line x1="18.0" y1="190.0" x2="702.0" y2="190.0" class="ln"/>
+<circle cx="259.5" cy="190" r="5" class="dot"/>
+<text x="259.5" y="216.0" class="ts tb" text-anchor="middle">AI digestion</text>
+<text x="259.5" y="232.0" class="tm" text-anchor="middle">0.47, 18%</text>
+<line x1="355.2" y1="196.0" x2="355.2" y2="240.0" class="lnm"/>
+<circle cx="355.2" cy="190" r="5" class="dot"/>
+<text x="355.2" y="254.0" class="ts tb" text-anchor="middle">Hard landing</text>
+<text x="355.2" y="270.0" class="tm" text-anchor="middle">0.52, 10%</text>
+<circle cx="425.3" cy="190" r="5" class="dot"/>
+<text x="425.3" y="216.0" class="ts tb" text-anchor="middle">Accident</text>
+<text x="425.3" y="232.0" class="tm" text-anchor="middle">0.55, 7%</text>
+<line x1="527.0" y1="196.0" x2="527.0" y2="240.0" class="lnm"/>
+<circle cx="527.0" cy="190" r="5" class="dot"/>
+<text x="527.0" y="254.0" class="ts tb" text-anchor="middle">Absorbed</text>
+<text x="527.0" y="270.0" class="tm" text-anchor="middle">0.60, 28%</text>
+<circle cx="631.6" cy="190" r="5" class="dot"/>
+<text x="631.6" y="216.0" class="ts tb" text-anchor="middle">Rates grind</text>
+<text x="631.6" y="232.0" class="tm" text-anchor="middle">0.65, 37%</text>
+</svg>
+<svg class="dg dg-narrow" viewBox="0 0 358 280" role="img" aria-label="Scale of the AA to BBB spread ratio from 0.36 to 0.68. Three-year range 0.388 to 0.616, mean 0.476. Today 0.590. Falsifier line 0.52. Scenario ratios: 0.60, 0.65, 0.47, 0.52, 0.55." preserveAspectRatio="xMidYMid meet">
+<rect x="46.2" y="68.0" width="229.4" height="16.0" rx="0" class="range"></rect>
+<rect x="18.0" y="86.0" width="161.0" height="5.0" rx="0" class="zone"></rect>
+<line x1="18.0" y1="76.0" x2="340.0" y2="76.0" class="hair"/>
+<line x1="134.7" y1="64.0" x2="134.7" y2="88.0" class="lnm"/>
+<text x="134.7" y="58.0" class="tm" text-anchor="middle">mean 0.476</text>
+<line x1="179.0" y1="56.0" x2="179.0" y2="136.0" class="thr"/>
+<line x1="179.0" y1="172.0" x2="179.0" y2="198.0" class="thr"/>
+<text x="171.0" y="128.0" class="t tb" text-anchor="end">F1 triggers below 0.52</text>
+<line x1="249.4" y1="44.0" x2="249.4" y2="90.0" class="tod"/>
+<line x1="249.4" y1="172.0" x2="249.4" y2="198.0" class="tod"/>
+<circle cx="249.4" cy="76" r="6.5" class="dot-today"/>
+<text x="249.4" y="18.0" class="tl" text-anchor="middle">Today 0.590</text>
+<text x="249.4" y="36.0" class="ts tmu" text-anchor="middle">94th percentile of three years</text>
+<text x="46.2" y="104.0" class="tm" text-anchor="middle">low 0.388</text>
+<text x="275.6" y="104.0" class="tm" text-anchor="middle">peak 0.616</text>
+<text x="18.0" y="162.0" class="tm" text-anchor="start">SIX-MONTH RATIO IN EACH SCENARIO, PROPOSALS</text>
+<line x1="18.0" y1="190.0" x2="340.0" y2="190.0" class="ln"/>
+<circle cx="131.7" cy="190" r="5" class="dot"/>
+<text x="131.7" y="216.0" class="ts tb" text-anchor="middle">AI digestion</text>
+<text x="131.7" y="232.0" class="tm" text-anchor="middle">0.47, 18%</text>
+<line x1="176.8" y1="196.0" x2="176.8" y2="240.0" class="lnm"/>
+<circle cx="176.8" cy="190" r="5" class="dot"/>
+<text x="176.8" y="254.0" class="ts tb" text-anchor="middle">Hard landing</text>
+<text x="176.8" y="270.0" class="tm" text-anchor="middle">0.52, 10%</text>
+<circle cx="209.8" cy="190" r="5" class="dot"/>
+<text x="209.8" y="216.0" class="ts tb" text-anchor="middle">Accident</text>
+<text x="209.8" y="232.0" class="tm" text-anchor="middle">0.55, 7%</text>
+<line x1="257.6" y1="196.0" x2="257.6" y2="240.0" class="lnm"/>
+<circle cx="257.6" cy="190" r="5" class="dot"/>
+<text x="257.6" y="254.0" class="ts tb" text-anchor="middle">Absorbed</text>
+<text x="257.6" y="270.0" class="tm" text-anchor="middle">0.60, 28%</text>
+<circle cx="306.9" cy="190" r="5" class="dot"/>
+<text x="306.9" y="216.0" class="ts tb" text-anchor="middle">Rates grind</text>
+<text x="306.9" y="232.0" class="tm" text-anchor="middle">0.65, 37%</text>
+</svg>
+
+      <figcaption>The ratio rose in a flight from risk, and it sits above the 0.52 falsifier line.</figcaption>
+    </figure>
+    <p>The green band is the three-year range. Today is 2.25 standard deviations above the mean. The grid puts the ratio near 0.65 if 2027 supply arrives in full.</p>
+  </section>
+
+  <section>
+    <h2>Five scenarios</h2>
+    <figure>
+      <svg class="dg dg-wide" viewBox="0 0 720 142" role="img" aria-label="Stacked bar of five proposed scenario probabilities: 28%, 37%, 18%, 10%, 7%. The two least likely hold 17% of the probability." preserveAspectRatio="xMidYMid meet">
+<text x="0.0" y="12.0" class="tm" text-anchor="start">PROPOSALS, SIX MONTHS TO 2027-05-23</text>
+<rect x="0.0" y="42.0" width="199.4" height="44.0" rx="4" class="s1"><title>Scenario 1: 28%</title></rect>
+<text x="99.7" y="34.0" class="tm" text-anchor="middle">1</text>
+<text x="99.7" y="69.0" class="t tb s1t" text-anchor="middle">28%</text>
+<rect x="201.4" y="42.0" width="263.4" height="44.0" rx="4" class="s2"><title>Scenario 2: 37%</title></rect>
+<text x="333.1" y="34.0" class="tm" text-anchor="middle">2</text>
+<text x="333.1" y="69.0" class="t tb s2t" text-anchor="middle">37%</text>
+<rect x="466.8" y="42.0" width="128.2" height="44.0" rx="4" class="s3"><title>Scenario 3: 18%</title></rect>
+<text x="530.9" y="34.0" class="tm" text-anchor="middle">3</text>
+<text x="530.9" y="69.0" class="t tb s3t" text-anchor="middle">18%</text>
+<rect x="597.0" y="42.0" width="71.2" height="44.0" rx="4" class="s4"><title>Scenario 4: 10%</title></rect>
+<text x="632.6" y="34.0" class="tm" text-anchor="middle">4</text>
+<text x="632.6" y="69.0" class="t tb s4t" text-anchor="middle">10%</text>
+<rect x="670.2" y="42.0" width="49.8" height="44.0" rx="4" class="s5"><title>Scenario 5: 7%</title></rect>
+<text x="695.1" y="34.0" class="tm" text-anchor="middle">5</text>
+<text x="695.1" y="69.0" class="t tb s5t" text-anchor="middle">7%</text>
+<path d="M597.0 92 V98 H720.0 V92" class="ln"/>
+<text x="720.0" y="118.0" class="ts" text-anchor="end">The two tail scenarios hold 17% of the probability</text>
+<text x="720.0" y="135.0" class="ts" text-anchor="end">and about three quarters of the expected IG move</text>
+</svg>
+<svg class="dg dg-narrow" viewBox="0 0 358 142" role="img" aria-label="Stacked bar of five proposed scenario probabilities: 28%, 37%, 18%, 10%, 7%. The two least likely hold 17% of the probability." preserveAspectRatio="xMidYMid meet">
+<text x="0.0" y="12.0" class="tm" text-anchor="start">PROPOSALS, SIX MONTHS TO 2027-05-23</text>
+<rect x="0.0" y="42.0" width="98.0" height="44.0" rx="4" class="s1"><title>Scenario 1: 28%</title></rect>
+<text x="49.0" y="34.0" class="tm" text-anchor="middle">1</text>
+<text x="49.0" y="69.0" class="t tb s1t" text-anchor="middle">28%</text>
+<rect x="100.0" y="42.0" width="129.5" height="44.0" rx="4" class="s2"><title>Scenario 2: 37%</title></rect>
+<text x="164.8" y="34.0" class="tm" text-anchor="middle">2</text>
+<text x="164.8" y="69.0" class="t tb s2t" text-anchor="middle">37%</text>
+<rect x="231.5" y="42.0" width="63.0" height="44.0" rx="4" class="s3"><title>Scenario 3: 18%</title></rect>
+<text x="263.0" y="34.0" class="tm" text-anchor="middle">3</text>
+<text x="263.0" y="69.0" class="t tb s3t" text-anchor="middle">18%</text>
+<rect x="296.5" y="42.0" width="35.0" height="44.0" rx="4" class="s4"><title>Scenario 4: 10%</title></rect>
+<text x="314.0" y="34.0" class="tm" text-anchor="middle">4</text>
+<text x="314.0" y="69.0" class="t tb s4t" text-anchor="middle">10%</text>
+<rect x="333.5" y="42.0" width="24.5" height="44.0" rx="4" class="s5"><title>Scenario 5: 7%</title></rect>
+<text x="345.8" y="34.0" class="tm" text-anchor="middle">5</text>
+<text x="345.8" y="69.0" class="t tb s5t" text-anchor="middle">7%</text>
+<path d="M296.5 92 V98 H358.0 V92" class="ln"/>
+<text x="358.0" y="118.0" class="ts" text-anchor="end">The two tail scenarios hold 17% of the probability</text>
+<text x="358.0" y="135.0" class="ts" text-anchor="end">and about three quarters of the expected IG move</text>
+</svg>
+
+      <figcaption>No scenario has a majority, and the two least likely scenarios drive most of the expected IG widening.</figcaption>
+    </figure>
+    <ol class="scen">
+      <li><span class="sw" style="background:var(--s1);color:var(--s1t)">1</span><span class="nm">Supply absorbed<span class="lb">PM assumption</span></span><span class="pp">28%</span><span class="mv">IG tightens 12bp and HY tightens 52bp. The ratio stays near 0.60.</span></li>
+<li><span class="sw" style="background:var(--s2);color:var(--s2t)">2</span><span class="nm">Higher rates, supply grind<span class="lb">evidence weighted</span></span><span class="pp">37%</span><span class="mv">IG widens 14bp and HY widens 18bp. The ratio rises to 0.65.</span></li>
+<li><span class="sw" style="background:var(--s3);color:var(--s3t)">3</span><span class="nm">AI digestion (capex cut)<span class="lb">PM assumption</span></span><span class="pp">18%</span><span class="mv">IG widens 18bp and HY widens 108bp. The ratio falls to 0.47.</span></li>
+<li><span class="sw" style="background:var(--s4);color:var(--s4t)">4</span><span class="nm">Hard landing<span class="lb">PM assumption</span></span><span class="pp">10%</span><span class="mv">IG widens 56bp and HY widens 248bp. The ratio falls to 0.52.</span></li>
+<li><span class="sw" style="background:var(--s5);color:var(--s5t)">5</span><span class="nm">Funding accident<span class="lb">PM assumption</span></span><span class="pp">7%</span><span class="mv">IG widens 116bp and HY widens 498bp. The ratio falls to 0.55.</span></li>
+
+    </ol>
+    <p>Moves are six-month spread changes. The expected move is IG +19bp and HY +71bp. Income covers 7bp of IG widening and 61bp of HY widening. No probability changed in this update. The moves are changes from today&#x27;s wider spreads.</p>
+  </section>
+
+  <section>
+    <h2>Expected move against the last month</h2>
+    <p>Each row compares one month of actual change with the expected change over the next six months. The expected move is the sum of probability times move over the five scenarios.</p>
+    <p class="key"><span><i class="sw-mo"></i>Last month, actual</span><span><i class="sw-ex"></i>Expected, a proposal</span><span><i class="sw-sc"></i>Scenario parts, numbered as in the list above</span></p>
+    <figure>
+      <svg class="dg dg-wide" viewBox="0 0 720 304" role="img" aria-label="Bars for the index spreads in basis points, on one scale. IG index spread: now 98bp on 20 Nov. Last month +10bp. Expected six-month move +19bp, a proposal. By scenario: −3bp, +5bp, +3bp, +6bp, +8bp. HY index spread: now 376bp on 20 Nov. Last month +49bp. Expected six-month move +71bp, a proposal. By scenario: −15bp, +7bp, +19bp, +25bp, +35bp." preserveAspectRatio="xMidYMid meet">
+<text x="0.0" y="12.0" class="tm" text-anchor="start">INDEX SPREADS, BP, ONE SCALE</text>
+<text x="212.1" y="32.0" class="tm" text-anchor="end">← TIGHTER</text>
+<text x="228.1" y="32.0" class="tm" text-anchor="start">WIDER →</text>
+<text x="0" y="56"><tspan class="t tb">IG index spread</tspan><tspan class="ts tmu" dx="10">98bp on 20 Nov</tspan></text>
+<text x="138.0" y="79.0" class="tm" text-anchor="end">Last month</text>
+<rect x="220.1" y="68.0" width="42.9" height="14.0" rx="2" class="mo"><title>IG index spread: +10bp from 21 Oct to 20 Nov</title></rect>
+<text x="271.0" y="79.0"><tspan class="t tb">+10bp</tspan><tspan class="ts tmu" dx="6">21 Oct to 20 Nov</tspan></text>
+<text x="138.0" y="103.0" class="tm" text-anchor="end">Expected, 6 months</text>
+<rect x="220.1" y="92.0" width="80.6" height="14.0" rx="2" class="ex"><title>IG index spread: expected move +19bp, a proposal</title></rect>
+<text x="308.6" y="103.0"><tspan class="t tb">+19bp</tspan><tspan class="ts tmu" dx="6">proposal</tspan></text>
+<text x="138.0" y="129.0" class="tm" text-anchor="end">By scenario</text>
+<rect x="205.7" y="116.0" width="12.4" height="18.0" rx="2" class="seg s1"><title>Scenario 1: −3bp</title></rect>
+<rect x="222.1" y="116.0" width="20.2" height="18.0" rx="2" class="seg s2"><title>Scenario 2: +5bp</title></rect>
+<text x="232.2" y="129.0" class="tm s2t" text-anchor="middle">2</text>
+<rect x="244.3" y="116.0" width="11.9" height="18.0" rx="2" class="seg s3"><title>Scenario 3: +3bp</title></rect>
+<rect x="258.2" y="116.0" width="22.0" height="18.0" rx="2" class="seg s4"><title>Scenario 4: +6bp</title></rect>
+<text x="269.2" y="129.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="282.2" y="116.0" width="32.8" height="18.0" rx="2" class="seg s5"><title>Scenario 5: +8bp</title></rect>
+<text x="298.6" y="129.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="220.1" y1="64.0" x2="220.1" y2="138.0" class="ln"/>
+<rect x="150.0" y="144.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="164.0" y="154"><tspan class="tm">1</tspan><tspan class="ts" dx="5">−3bp</tspan></text>
+<rect x="264.0" y="144.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="278.0" y="154"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+5bp</tspan></text>
+<rect x="378.0" y="144.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="392.0" y="154"><tspan class="tm">3</tspan><tspan class="ts" dx="5">+3bp</tspan></text>
+<rect x="492.0" y="144.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="506.0" y="154"><tspan class="tm">4</tspan><tspan class="ts" dx="5">+6bp</tspan></text>
+<rect x="606.0" y="144.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="620.0" y="154"><tspan class="tm">5</tspan><tspan class="ts" dx="5">+8bp</tspan></text>
+<text x="0" y="194"><tspan class="t tb">HY index spread</tspan><tspan class="ts tmu" dx="10">376bp on 20 Nov</tspan></text>
+<text x="138.0" y="217.0" class="tm" text-anchor="end">Last month</text>
+<rect x="220.1" y="206.0" width="210.2" height="14.0" rx="2" class="mo"><title>HY index spread: +49bp from 21 Oct to 20 Nov</title></rect>
+<text x="438.3" y="217.0"><tspan class="t tb">+49bp</tspan><tspan class="ts tmu" dx="6">21 Oct to 20 Nov</tspan></text>
+<text x="138.0" y="241.0" class="tm" text-anchor="end">Expected, 6 months</text>
+<rect x="220.1" y="230.0" width="305.5" height="14.0" rx="2" class="ex"><title>HY index spread: expected move +71bp, a proposal</title></rect>
+<text x="533.5" y="241.0"><tspan class="t tb">+71bp</tspan><tspan class="ts tmu" dx="6">proposal</tspan></text>
+<text x="138.0" y="267.0" class="tm" text-anchor="end">By scenario</text>
+<rect x="157.6" y="254.0" width="60.5" height="18.0" rx="2" class="seg s1"><title>Scenario 1: −15bp</title></rect>
+<text x="187.8" y="267.0" class="tm s1t" text-anchor="middle">1</text>
+<rect x="222.1" y="254.0" width="26.6" height="18.0" rx="2" class="seg s2"><title>Scenario 2: +7bp</title></rect>
+<text x="235.4" y="267.0" class="tm s2t" text-anchor="middle">2</text>
+<rect x="250.7" y="254.0" width="81.4" height="18.0" rx="2" class="seg s3"><title>Scenario 3: +19bp</title></rect>
+<text x="291.4" y="267.0" class="tm s3t" text-anchor="middle">3</text>
+<rect x="334.1" y="254.0" width="104.4" height="18.0" rx="2" class="seg s4"><title>Scenario 4: +25bp</title></rect>
+<text x="386.2" y="267.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="440.4" y="254.0" width="147.6" height="18.0" rx="2" class="seg s5"><title>Scenario 5: +35bp</title></rect>
+<text x="514.2" y="267.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="220.1" y1="202.0" x2="220.1" y2="276.0" class="ln"/>
+<rect x="150.0" y="282.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="164.0" y="292"><tspan class="tm">1</tspan><tspan class="ts" dx="5">−15bp</tspan></text>
+<rect x="264.0" y="282.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="278.0" y="292"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+7bp</tspan></text>
+<rect x="378.0" y="282.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="392.0" y="292"><tspan class="tm">3</tspan><tspan class="ts" dx="5">+19bp</tspan></text>
+<rect x="492.0" y="282.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="506.0" y="292"><tspan class="tm">4</tspan><tspan class="ts" dx="5">+25bp</tspan></text>
+<rect x="606.0" y="282.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="620.0" y="292"><tspan class="tm">5</tspan><tspan class="ts" dx="5">+35bp</tspan></text>
+</svg>
+<svg class="dg dg-narrow" viewBox="0 0 358 412" role="img" aria-label="Bars for the index spreads in basis points, on one scale. IG index spread: now 98bp on 20 Nov. Last month +10bp. Expected six-month move +19bp, a proposal. By scenario: −3bp, +5bp, +3bp, +6bp, +8bp. HY index spread: now 376bp on 20 Nov. Last month +49bp. Expected six-month move +71bp, a proposal. By scenario: −15bp, +7bp, +19bp, +25bp, +35bp." preserveAspectRatio="xMidYMid meet">
+<text x="0.0" y="12.0" class="tm" text-anchor="start">INDEX SPREADS, BP, ONE SCALE</text>
+<text x="79.0" y="32.0" class="tm" text-anchor="end">← TIGHTER</text>
+<text x="95.0" y="32.0" class="tm" text-anchor="start">WIDER →</text>
+<text x="0" y="56"><tspan class="t tb">IG index spread</tspan><tspan class="ts tmu" dx="10">98bp on 20 Nov</tspan></text>
+<text x="0.0" y="79.0" class="tm" text-anchor="start">Last month</text>
+<text x="358" y="79" text-anchor="end"><tspan class="ts tmu">21 Oct to 20 Nov</tspan><tspan class="t tb" dx="6">+10bp</tspan></text>
+<rect x="87.0" y="86.0" width="31.4" height="14.0" rx="2" class="mo"><title>IG index spread: +10bp from 21 Oct to 20 Nov</title></rect>
+<line x1="87.0" y1="83.0" x2="87.0" y2="103.0" class="ln"/>
+<text x="0.0" y="121.0" class="tm" text-anchor="start">Expected, 6 months</text>
+<text x="358" y="121" text-anchor="end"><tspan class="ts tmu">proposal</tspan><tspan class="t tb" dx="6">+19bp</tspan></text>
+<rect x="87.0" y="128.0" width="58.9" height="14.0" rx="2" class="ex"><title>IG index spread: expected move +19bp, a proposal</title></rect>
+<line x1="87.0" y1="125.0" x2="87.0" y2="145.0" class="ln"/>
+<text x="0.0" y="163.0" class="tm" text-anchor="start">By scenario, probability times move</text>
+<rect x="76.4" y="170.0" width="8.5" height="18.0" rx="2" class="seg s1"><title>Scenario 1: −3bp</title></rect>
+<rect x="89.0" y="170.0" width="14.3" height="18.0" rx="2" class="seg s2"><title>Scenario 2: +5bp</title></rect>
+<rect x="105.2" y="170.0" width="8.2" height="18.0" rx="2" class="seg s3"><title>Scenario 3: +3bp</title></rect>
+<rect x="115.4" y="170.0" width="15.6" height="18.0" rx="2" class="seg s4"><title>Scenario 4: +6bp</title></rect>
+<text x="123.2" y="183.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="132.9" y="170.0" width="23.5" height="18.0" rx="2" class="seg s5"><title>Scenario 5: +8bp</title></rect>
+<text x="144.7" y="183.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="87.0" y1="167.0" x2="87.0" y2="192.0" class="ln"/>
+<rect x="0.0" y="198.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="14.0" y="208"><tspan class="tm">1</tspan><tspan class="ts" dx="5">−3bp</tspan></text>
+<rect x="71.6" y="198.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="85.6" y="208"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+5bp</tspan></text>
+<rect x="143.2" y="198.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="157.2" y="208"><tspan class="tm">3</tspan><tspan class="ts" dx="5">+3bp</tspan></text>
+<rect x="214.8" y="198.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="228.8" y="208"><tspan class="tm">4</tspan><tspan class="ts" dx="5">+6bp</tspan></text>
+<rect x="286.4" y="198.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="300.4" y="208"><tspan class="tm">5</tspan><tspan class="ts" dx="5">+8bp</tspan></text>
+<text x="0" y="248"><tspan class="t tb">HY index spread</tspan><tspan class="ts tmu" dx="10">376bp on 20 Nov</tspan></text>
+<text x="0.0" y="271.0" class="tm" text-anchor="start">Last month</text>
+<text x="358" y="271" text-anchor="end"><tspan class="ts tmu">21 Oct to 20 Nov</tspan><tspan class="t tb" dx="6">+49bp</tspan></text>
+<rect x="87.0" y="278.0" width="153.7" height="14.0" rx="2" class="mo"><title>HY index spread: +49bp from 21 Oct to 20 Nov</title></rect>
+<line x1="87.0" y1="275.0" x2="87.0" y2="295.0" class="ln"/>
+<text x="0.0" y="313.0" class="tm" text-anchor="start">Expected, 6 months</text>
+<text x="358" y="313" text-anchor="end"><tspan class="ts tmu">proposal</tspan><tspan class="t tb" dx="6">+71bp</tspan></text>
+<rect x="87.0" y="320.0" width="223.4" height="14.0" rx="2" class="ex"><title>HY index spread: expected move +71bp, a proposal</title></rect>
+<line x1="87.0" y1="317.0" x2="87.0" y2="337.0" class="ln"/>
+<text x="0.0" y="355.0" class="tm" text-anchor="start">By scenario, probability times move</text>
+<rect x="41.3" y="362.0" width="43.7" height="18.0" rx="2" class="seg s1"><title>Scenario 1: −15bp</title></rect>
+<text x="63.1" y="375.0" class="tm s1t" text-anchor="middle">1</text>
+<rect x="89.0" y="362.0" width="18.9" height="18.0" rx="2" class="seg s2"><title>Scenario 2: +7bp</title></rect>
+<text x="98.4" y="375.0" class="tm s2t" text-anchor="middle">2</text>
+<rect x="109.9" y="362.0" width="59.0" height="18.0" rx="2" class="seg s3"><title>Scenario 3: +19bp</title></rect>
+<text x="139.3" y="375.0" class="tm s3t" text-anchor="middle">3</text>
+<rect x="170.8" y="362.0" width="75.8" height="18.0" rx="2" class="seg s4"><title>Scenario 4: +25bp</title></rect>
+<text x="208.7" y="375.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="248.6" y="362.0" width="107.4" height="18.0" rx="2" class="seg s5"><title>Scenario 5: +35bp</title></rect>
+<text x="302.3" y="375.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="87.0" y1="359.0" x2="87.0" y2="384.0" class="ln"/>
+<rect x="0.0" y="390.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="14.0" y="400"><tspan class="tm">1</tspan><tspan class="ts" dx="5">−15bp</tspan></text>
+<rect x="71.6" y="390.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="85.6" y="400"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+7bp</tspan></text>
+<rect x="143.2" y="390.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="157.2" y="400"><tspan class="tm">3</tspan><tspan class="ts" dx="5">+19bp</tspan></text>
+<rect x="214.8" y="390.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="228.8" y="400"><tspan class="tm">4</tspan><tspan class="ts" dx="5">+25bp</tspan></text>
+<rect x="286.4" y="390.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="300.4" y="400"><tspan class="tm">5</tspan><tspan class="ts" dx="5">+35bp</tspan></text>
+</svg>
+<svg class="dg dg-wide" viewBox="0 0 720 166" role="img" aria-label="Bars for the AA to BBB spread ratio. AA to BBB ratio, the axis: now 0.590 on 20 Nov. Last month +0.012. Expected six-month move −0.008, a proposal. By scenario: +0.002, +0.021, −0.021, −0.007, −0.003." preserveAspectRatio="xMidYMid meet">
+<text x="0.0" y="12.0" class="tm" text-anchor="start">THE AXIS, AA SPREAD OVER BBB SPREAD</text>
+<text x="392.5" y="32.0" class="tm" text-anchor="end">← LOWER</text>
+<text x="408.5" y="32.0" class="tm" text-anchor="start">HIGHER →</text>
+<text x="0" y="56"><tspan class="t tb">AA to BBB ratio, the axis</tspan><tspan class="ts tmu" dx="10">0.590 on 20 Nov</tspan></text>
+<text x="138.0" y="79.0" class="tm" text-anchor="end">Last month</text>
+<rect x="400.5" y="68.0" width="96.6" height="14.0" rx="2" class="mo"><title>AA to BBB ratio, the axis: +0.012 from 21 Oct to 20 Nov</title></rect>
+<text x="505.1" y="79.0"><tspan class="t tb">+0.012</tspan><tspan class="ts tmu" dx="6">21 Oct to 20 Nov</tspan></text>
+<text x="138.0" y="103.0" class="tm" text-anchor="end">Expected, 6 months</text>
+<rect x="337.5" y="92.0" width="63.0" height="14.0" rx="2" class="ex"><title>AA to BBB ratio, the axis: expected move −0.008, a proposal</title></rect>
+<text x="408.5" y="103.0"><tspan class="t tb">−0.008</tspan><tspan class="ts tmu" dx="6">proposal</tspan></text>
+<text x="138.0" y="129.0" class="tm" text-anchor="end">By scenario</text>
+<rect x="402.5" y="116.0" width="16.0" height="18.0" rx="2" class="seg s1"><title>Scenario 1: +0.002</title></rect>
+<text x="410.5" y="129.0" class="tm s1t" text-anchor="middle">1</text>
+<rect x="420.5" y="116.0" width="167.5" height="18.0" rx="2" class="seg s2"><title>Scenario 2: +0.021</title></rect>
+<text x="504.2" y="129.0" class="tm s2t" text-anchor="middle">2</text>
+<rect x="230.6" y="116.0" width="167.9" height="18.0" rx="2" class="seg s3"><title>Scenario 3: −0.021</title></rect>
+<text x="314.6" y="129.0" class="tm s3t" text-anchor="middle">3</text>
+<rect x="172.3" y="116.0" width="56.3" height="18.0" rx="2" class="seg s4"><title>Scenario 4: −0.007</title></rect>
+<text x="200.5" y="129.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="150.0" y="116.0" width="20.3" height="18.0" rx="2" class="seg s5"><title>Scenario 5: −0.003</title></rect>
+<text x="160.2" y="129.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="400.5" y1="64.0" x2="400.5" y2="138.0" class="ln"/>
+<rect x="150.0" y="144.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="164.0" y="154"><tspan class="tm">1</tspan><tspan class="ts" dx="5">+0.002</tspan></text>
+<rect x="264.0" y="144.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="278.0" y="154"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+0.021</tspan></text>
+<rect x="378.0" y="144.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="392.0" y="154"><tspan class="tm">3</tspan><tspan class="ts" dx="5">−0.021</tspan></text>
+<rect x="492.0" y="144.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="506.0" y="154"><tspan class="tm">4</tspan><tspan class="ts" dx="5">−0.007</tspan></text>
+<rect x="606.0" y="144.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="620.0" y="154"><tspan class="tm">5</tspan><tspan class="ts" dx="5">−0.003</tspan></text>
+</svg>
+<svg class="dg dg-narrow" viewBox="0 0 358 220" role="img" aria-label="Bars for the AA to BBB spread ratio. AA to BBB ratio, the axis: now 0.590 on 20 Nov. Last month +0.012. Expected six-month move −0.008, a proposal. By scenario: +0.002, +0.021, −0.021, −0.007, −0.003." preserveAspectRatio="xMidYMid meet">
+<text x="0.0" y="12.0" class="tm" text-anchor="start">THE AXIS, AA SPREAD OVER BBB SPREAD</text>
+<text x="196.5" y="32.0" class="tm" text-anchor="end">← LOWER</text>
+<text x="212.5" y="32.0" class="tm" text-anchor="start">HIGHER →</text>
+<text x="0" y="56"><tspan class="t tb">AA to BBB ratio, the axis</tspan><tspan class="ts tmu" dx="10">0.590 on 20 Nov</tspan></text>
+<text x="0.0" y="79.0" class="tm" text-anchor="start">Last month</text>
+<text x="358" y="79" text-anchor="end"><tspan class="ts tmu">21 Oct to 20 Nov</tspan><tspan class="t tb" dx="6">+0.012</tspan></text>
+<rect x="204.5" y="86.0" width="78.1" height="14.0" rx="2" class="mo"><title>AA to BBB ratio, the axis: +0.012 from 21 Oct to 20 Nov</title></rect>
+<line x1="204.5" y1="83.0" x2="204.5" y2="103.0" class="ln"/>
+<text x="0.0" y="121.0" class="tm" text-anchor="start">Expected, 6 months</text>
+<text x="358" y="121" text-anchor="end"><tspan class="ts tmu">proposal</tspan><tspan class="t tb" dx="6">−0.008</tspan></text>
+<rect x="153.5" y="128.0" width="50.9" height="14.0" rx="2" class="ex"><title>AA to BBB ratio, the axis: expected move −0.008, a proposal</title></rect>
+<line x1="204.5" y1="125.0" x2="204.5" y2="145.0" class="ln"/>
+<text x="0.0" y="163.0" class="tm" text-anchor="start">By scenario, probability times move</text>
+<rect x="206.5" y="170.0" width="12.5" height="18.0" rx="2" class="seg s1"><title>Scenario 1: +0.002</title></rect>
+<rect x="221.0" y="170.0" width="135.0" height="18.0" rx="2" class="seg s2"><title>Scenario 2: +0.021</title></rect>
+<text x="288.5" y="183.0" class="tm s2t" text-anchor="middle">2</text>
+<rect x="67.2" y="170.0" width="135.3" height="18.0" rx="2" class="seg s3"><title>Scenario 3: −0.021</title></rect>
+<text x="134.8" y="183.0" class="tm s3t" text-anchor="middle">3</text>
+<rect x="20.0" y="170.0" width="45.1" height="18.0" rx="2" class="seg s4"><title>Scenario 4: −0.007</title></rect>
+<text x="42.6" y="183.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="2.0" y="170.0" width="16.0" height="18.0" rx="2" class="seg s5"><title>Scenario 5: −0.003</title></rect>
+<text x="10.0" y="183.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="204.5" y1="167.0" x2="204.5" y2="192.0" class="ln"/>
+<rect x="0.0" y="198.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="14.0" y="208"><tspan class="tm">1</tspan><tspan class="ts" dx="5">+0.002</tspan></text>
+<rect x="71.6" y="198.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="85.6" y="208"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+0.021</tspan></text>
+<rect x="143.2" y="198.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="157.2" y="208"><tspan class="tm">3</tspan><tspan class="ts" dx="5">−0.021</tspan></text>
+<rect x="214.8" y="198.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="228.8" y="208"><tspan class="tm">4</tspan><tspan class="ts" dx="5">−0.007</tspan></text>
+<rect x="286.4" y="198.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="300.4" y="208"><tspan class="tm">5</tspan><tspan class="ts" dx="5">−0.003</tspan></text>
+</svg>
+<svg class="dg dg-wide" viewBox="0 0 720 280" role="img" aria-label="Bars for two IG rating tiers in basis points, on a scale of their own. AA spread: now 72bp on 20 Nov. Last month +9bp. Expected six-month move +12bp, a proposal. By scenario: −2bp, +6bp, 0bp, +3bp, +5bp. BBB spread: now 122bp on 20 Nov. Last month +13bp. Expected six-month move +23bp, a proposal. By scenario: −4bp, +5bp, +5bp, +8bp, +10bp." preserveAspectRatio="xMidYMid meet">
+<text x="0.0" y="12.0" class="tm" text-anchor="start">IG RATING TIERS, BP, THEIR OWN SCALE</text>
+<text x="212.1" y="32.0" class="tm" text-anchor="end">← TIGHTER</text>
+<text x="228.1" y="32.0" class="tm" text-anchor="start">WIDER →</text>
+<text x="0" y="56"><tspan class="t tb">AA spread</tspan><tspan class="ts tmu" dx="10">72bp on 20 Nov</tspan></text>
+<text x="138.0" y="77.0" class="tm" text-anchor="end">Last month</text>
+<rect x="220.1" y="68.0" width="120.4" height="10.0" rx="2" class="mo"><title>AA spread: +9bp from 21 Oct to 20 Nov</title></rect>
+<text x="348.4" y="77.0"><tspan class="t tb">+9bp</tspan><tspan class="ts tmu" dx="6">21 Oct to 20 Nov</tspan></text>
+<text x="138.0" y="97.0" class="tm" text-anchor="end">Expected, 6 months</text>
+<rect x="220.1" y="88.0" width="154.7" height="10.0" rx="2" class="ex"><title>AA spread: expected move +12bp, a proposal</title></rect>
+<text x="382.8" y="97.0"><tspan class="t tb">+12bp</tspan><tspan class="ts tmu" dx="6">proposal</tspan></text>
+<text x="138.0" y="119.0" class="tm" text-anchor="end">By scenario</text>
+<rect x="190.1" y="108.0" width="28.0" height="14.0" rx="2" class="seg s1"><title>Scenario 1: −2bp</title></rect>
+<text x="204.1" y="119.0" class="tm s1t" text-anchor="middle">1</text>
+<rect x="222.1" y="108.0" width="77.2" height="14.0" rx="2" class="seg s2"><title>Scenario 2: +6bp</title></rect>
+<text x="260.7" y="119.0" class="tm s2t" text-anchor="middle">2</text>
+<rect x="185.3" y="108.0" width="2.8" height="14.0" rx="2" class="seg s3"><title>Scenario 3: 0bp</title></rect>
+<rect x="301.3" y="108.0" width="38.1" height="14.0" rx="2" class="seg s4"><title>Scenario 4: +3bp</title></rect>
+<text x="320.3" y="119.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="341.4" y="108.0" width="68.2" height="14.0" rx="2" class="seg s5"><title>Scenario 5: +5bp</title></rect>
+<text x="375.5" y="119.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="220.1" y1="64.0" x2="220.1" y2="126.0" class="ln"/>
+<rect x="150.0" y="132.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="164.0" y="142"><tspan class="tm">1</tspan><tspan class="ts" dx="5">−2bp</tspan></text>
+<rect x="264.0" y="132.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="278.0" y="142"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+6bp</tspan></text>
+<rect x="378.0" y="132.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="392.0" y="142"><tspan class="tm">3</tspan><tspan class="ts" dx="5">0bp</tspan></text>
+<rect x="492.0" y="132.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="506.0" y="142"><tspan class="tm">4</tspan><tspan class="ts" dx="5">+3bp</tspan></text>
+<rect x="606.0" y="132.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="620.0" y="142"><tspan class="tm">5</tspan><tspan class="ts" dx="5">+5bp</tspan></text>
+<text x="0" y="182"><tspan class="t tb">BBB spread</tspan><tspan class="ts tmu" dx="10">122bp on 20 Nov</tspan></text>
+<text x="138.0" y="203.0" class="tm" text-anchor="end">Last month</text>
+<rect x="220.1" y="194.0" width="173.9" height="10.0" rx="2" class="mo"><title>BBB spread: +13bp from 21 Oct to 20 Nov</title></rect>
+<text x="401.9" y="203.0"><tspan class="t tb">+13bp</tspan><tspan class="ts tmu" dx="6">21 Oct to 20 Nov</tspan></text>
+<text x="138.0" y="223.0" class="tm" text-anchor="end">Expected, 6 months</text>
+<rect x="220.1" y="214.0" width="311.7" height="10.0" rx="2" class="ex"><title>BBB spread: expected move +23bp, a proposal</title></rect>
+<text x="539.8" y="223.0"><tspan class="t tb">+23bp</tspan><tspan class="ts tmu" dx="6">proposal</tspan></text>
+<text x="138.0" y="245.0" class="tm" text-anchor="end">By scenario</text>
+<rect x="163.9" y="234.0" width="54.2" height="14.0" rx="2" class="seg s1"><title>Scenario 1: −4bp</title></rect>
+<text x="191.0" y="245.0" class="tm s1t" text-anchor="middle">1</text>
+<rect x="222.1" y="234.0" width="67.3" height="14.0" rx="2" class="seg s2"><title>Scenario 2: +5bp</title></rect>
+<text x="255.7" y="245.0" class="tm s2t" text-anchor="middle">2</text>
+<rect x="291.4" y="234.0" width="60.6" height="14.0" rx="2" class="seg s3"><title>Scenario 3: +5bp</title></rect>
+<text x="321.7" y="245.0" class="tm s3t" text-anchor="middle">3</text>
+<rect x="353.9" y="234.0" width="98.3" height="14.0" rx="2" class="seg s4"><title>Scenario 4: +8bp</title></rect>
+<text x="403.1" y="245.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="454.3" y="234.0" width="133.7" height="14.0" rx="2" class="seg s5"><title>Scenario 5: +10bp</title></rect>
+<text x="521.1" y="245.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="220.1" y1="190.0" x2="220.1" y2="252.0" class="ln"/>
+<rect x="150.0" y="258.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="164.0" y="268"><tspan class="tm">1</tspan><tspan class="ts" dx="5">−4bp</tspan></text>
+<rect x="264.0" y="258.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="278.0" y="268"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+5bp</tspan></text>
+<rect x="378.0" y="258.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="392.0" y="268"><tspan class="tm">3</tspan><tspan class="ts" dx="5">+5bp</tspan></text>
+<rect x="492.0" y="258.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="506.0" y="268"><tspan class="tm">4</tspan><tspan class="ts" dx="5">+8bp</tspan></text>
+<rect x="606.0" y="258.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="620.0" y="268"><tspan class="tm">5</tspan><tspan class="ts" dx="5">+10bp</tspan></text>
+</svg>
+<svg class="dg dg-narrow" viewBox="0 0 358 388" role="img" aria-label="Bars for two IG rating tiers in basis points, on a scale of their own. AA spread: now 72bp on 20 Nov. Last month +9bp. Expected six-month move +12bp, a proposal. By scenario: −2bp, +6bp, 0bp, +3bp, +5bp. BBB spread: now 122bp on 20 Nov. Last month +13bp. Expected six-month move +23bp, a proposal. By scenario: −4bp, +5bp, +5bp, +8bp, +10bp." preserveAspectRatio="xMidYMid meet">
+<text x="0.0" y="12.0" class="tm" text-anchor="start">IG RATING TIERS, BP, THEIR OWN SCALE</text>
+<text x="79.0" y="32.0" class="tm" text-anchor="end">← TIGHTER</text>
+<text x="95.0" y="32.0" class="tm" text-anchor="start">WIDER →</text>
+<text x="0" y="56"><tspan class="t tb">AA spread</tspan><tspan class="ts tmu" dx="10">72bp on 20 Nov</tspan></text>
+<text x="0.0" y="79.0" class="tm" text-anchor="start">Last month</text>
+<text x="358" y="79" text-anchor="end"><tspan class="ts tmu">21 Oct to 20 Nov</tspan><tspan class="t tb" dx="6">+9bp</tspan></text>
+<rect x="87.0" y="86.0" width="88.0" height="10.0" rx="2" class="mo"><title>AA spread: +9bp from 21 Oct to 20 Nov</title></rect>
+<line x1="87.0" y1="83.0" x2="87.0" y2="99.0" class="ln"/>
+<text x="0.0" y="117.0" class="tm" text-anchor="start">Expected, 6 months</text>
+<text x="358" y="117" text-anchor="end"><tspan class="ts tmu">proposal</tspan><tspan class="t tb" dx="6">+12bp</tspan></text>
+<rect x="87.0" y="124.0" width="113.2" height="10.0" rx="2" class="ex"><title>AA spread: expected move +12bp, a proposal</title></rect>
+<line x1="87.0" y1="121.0" x2="87.0" y2="137.0" class="ln"/>
+<text x="0.0" y="155.0" class="tm" text-anchor="start">By scenario, probability times move</text>
+<rect x="65.1" y="162.0" width="19.9" height="14.0" rx="2" class="seg s1"><title>Scenario 1: −2bp</title></rect>
+<text x="75.0" y="173.0" class="tm s1t" text-anchor="middle">1</text>
+<rect x="89.0" y="162.0" width="55.9" height="14.0" rx="2" class="seg s2"><title>Scenario 2: +6bp</title></rect>
+<text x="116.9" y="173.0" class="tm s2t" text-anchor="middle">2</text>
+<rect x="61.5" y="162.0" width="3.5" height="14.0" rx="2" class="seg s3"><title>Scenario 3: 0bp</title></rect>
+<rect x="146.9" y="162.0" width="27.3" height="14.0" rx="2" class="seg s4"><title>Scenario 4: +3bp</title></rect>
+<text x="160.5" y="173.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="176.2" y="162.0" width="49.3" height="14.0" rx="2" class="seg s5"><title>Scenario 5: +5bp</title></rect>
+<text x="200.9" y="173.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="87.0" y1="159.0" x2="87.0" y2="180.0" class="ln"/>
+<rect x="0.0" y="186.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="14.0" y="196"><tspan class="tm">1</tspan><tspan class="ts" dx="5">−2bp</tspan></text>
+<rect x="71.6" y="186.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="85.6" y="196"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+6bp</tspan></text>
+<rect x="143.2" y="186.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="157.2" y="196"><tspan class="tm">3</tspan><tspan class="ts" dx="5">0bp</tspan></text>
+<rect x="214.8" y="186.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="228.8" y="196"><tspan class="tm">4</tspan><tspan class="ts" dx="5">+3bp</tspan></text>
+<rect x="286.4" y="186.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="300.4" y="196"><tspan class="tm">5</tspan><tspan class="ts" dx="5">+5bp</tspan></text>
+<text x="0" y="236"><tspan class="t tb">BBB spread</tspan><tspan class="ts tmu" dx="10">122bp on 20 Nov</tspan></text>
+<text x="0.0" y="259.0" class="tm" text-anchor="start">Last month</text>
+<text x="358" y="259" text-anchor="end"><tspan class="ts tmu">21 Oct to 20 Nov</tspan><tspan class="t tb" dx="6">+13bp</tspan></text>
+<rect x="87.0" y="266.0" width="127.1" height="10.0" rx="2" class="mo"><title>BBB spread: +13bp from 21 Oct to 20 Nov</title></rect>
+<line x1="87.0" y1="263.0" x2="87.0" y2="279.0" class="ln"/>
+<text x="0.0" y="297.0" class="tm" text-anchor="start">Expected, 6 months</text>
+<text x="358" y="297" text-anchor="end"><tspan class="ts tmu">proposal</tspan><tspan class="t tb" dx="6">+23bp</tspan></text>
+<rect x="87.0" y="304.0" width="228.0" height="10.0" rx="2" class="ex"><title>BBB spread: expected move +23bp, a proposal</title></rect>
+<line x1="87.0" y1="301.0" x2="87.0" y2="317.0" class="ln"/>
+<text x="0.0" y="335.0" class="tm" text-anchor="start">By scenario, probability times move</text>
+<rect x="45.9" y="342.0" width="39.1" height="14.0" rx="2" class="seg s1"><title>Scenario 1: −4bp</title></rect>
+<text x="65.4" y="353.0" class="tm s1t" text-anchor="middle">1</text>
+<rect x="89.0" y="342.0" width="48.7" height="14.0" rx="2" class="seg s2"><title>Scenario 2: +5bp</title></rect>
+<text x="113.3" y="353.0" class="tm s2t" text-anchor="middle">2</text>
+<rect x="139.6" y="342.0" width="43.8" height="14.0" rx="2" class="seg s3"><title>Scenario 3: +5bp</title></rect>
+<text x="161.5" y="353.0" class="tm s3t" text-anchor="middle">3</text>
+<rect x="185.4" y="342.0" width="71.3" height="14.0" rx="2" class="seg s4"><title>Scenario 4: +8bp</title></rect>
+<text x="221.1" y="353.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="258.7" y="342.0" width="97.3" height="14.0" rx="2" class="seg s5"><title>Scenario 5: +10bp</title></rect>
+<text x="307.4" y="353.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="87.0" y1="339.0" x2="87.0" y2="360.0" class="ln"/>
+<rect x="0.0" y="366.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="14.0" y="376"><tspan class="tm">1</tspan><tspan class="ts" dx="5">−4bp</tspan></text>
+<rect x="71.6" y="366.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="85.6" y="376"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+5bp</tspan></text>
+<rect x="143.2" y="366.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="157.2" y="376"><tspan class="tm">3</tspan><tspan class="ts" dx="5">+5bp</tspan></text>
+<rect x="214.8" y="366.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="228.8" y="376"><tspan class="tm">4</tspan><tspan class="ts" dx="5">+8bp</tspan></text>
+<rect x="286.4" y="366.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="300.4" y="376"><tspan class="tm">5</tspan><tspan class="ts" dx="5">+10bp</tspan></text>
+</svg>
+<svg class="dg dg-wide" viewBox="0 0 720 154" role="img" aria-label="Bars for the CCC spread in basis points, on a scale of its own. CCC spread: now 1,402bp on 20 Nov. Last month +95bp. Expected six-month move +176bp, a proposal. By scenario: −42bp, +11bp, +61bp, +62bp, +84bp." preserveAspectRatio="xMidYMid meet">
+<text x="0.0" y="12.0" class="tm" text-anchor="start">WEAKEST HY TIER, BP, ITS OWN SCALE</text>
+<text x="212.7" y="32.0" class="tm" text-anchor="end">← TIGHTER</text>
+<text x="228.7" y="32.0" class="tm" text-anchor="start">WIDER →</text>
+<text x="0" y="56"><tspan class="t tb">CCC spread</tspan><tspan class="ts tmu" dx="10">1,402bp on 20 Nov</tspan></text>
+<text x="138.0" y="77.0" class="tm" text-anchor="end">Last month</text>
+<rect x="220.7" y="68.0" width="159.9" height="10.0" rx="2" class="mo"><title>CCC spread: +95bp from 21 Oct to 20 Nov</title></rect>
+<text x="388.5" y="77.0"><tspan class="t tb">+95bp</tspan><tspan class="ts tmu" dx="6">21 Oct to 20 Nov</tspan></text>
+<text x="138.0" y="97.0" class="tm" text-anchor="end">Expected, 6 months</text>
+<rect x="220.7" y="88.0" width="296.7" height="10.0" rx="2" class="ex"><title>CCC spread: expected move +176bp, a proposal</title></rect>
+<text x="525.3" y="97.0"><tspan class="t tb">+176bp</tspan><tspan class="ts tmu" dx="6">proposal</tspan></text>
+<text x="138.0" y="119.0" class="tm" text-anchor="end">By scenario</text>
+<rect x="150.0" y="108.0" width="68.7" height="14.0" rx="2" class="seg s1"><title>Scenario 1: −42bp</title></rect>
+<text x="184.3" y="119.0" class="tm s1t" text-anchor="middle">1</text>
+<rect x="222.7" y="108.0" width="16.7" height="14.0" rx="2" class="seg s2"><title>Scenario 2: +11bp</title></rect>
+<text x="231.0" y="119.0" class="tm s2t" text-anchor="middle">2</text>
+<rect x="241.3" y="108.0" width="101.0" height="14.0" rx="2" class="seg s3"><title>Scenario 3: +61bp</title></rect>
+<text x="291.8" y="119.0" class="tm s3t" text-anchor="middle">3</text>
+<rect x="344.3" y="108.0" width="102.3" height="14.0" rx="2" class="seg s4"><title>Scenario 4: +62bp</title></rect>
+<text x="395.5" y="119.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="448.7" y="108.0" width="139.3" height="14.0" rx="2" class="seg s5"><title>Scenario 5: +84bp</title></rect>
+<text x="518.3" y="119.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="220.7" y1="64.0" x2="220.7" y2="126.0" class="ln"/>
+<rect x="150.0" y="132.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="164.0" y="142"><tspan class="tm">1</tspan><tspan class="ts" dx="5">−42bp</tspan></text>
+<rect x="264.0" y="132.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="278.0" y="142"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+11bp</tspan></text>
+<rect x="378.0" y="132.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="392.0" y="142"><tspan class="tm">3</tspan><tspan class="ts" dx="5">+61bp</tspan></text>
+<rect x="492.0" y="132.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="506.0" y="142"><tspan class="tm">4</tspan><tspan class="ts" dx="5">+62bp</tspan></text>
+<rect x="606.0" y="132.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="620.0" y="142"><tspan class="tm">5</tspan><tspan class="ts" dx="5">+84bp</tspan></text>
+</svg>
+<svg class="dg dg-narrow" viewBox="0 0 358 208" role="img" aria-label="Bars for the CCC spread in basis points, on a scale of its own. CCC spread: now 1,402bp on 20 Nov. Last month +95bp. Expected six-month move +176bp, a proposal. By scenario: −42bp, +11bp, +61bp, +62bp, +84bp." preserveAspectRatio="xMidYMid meet">
+<text x="0.0" y="12.0" class="tm" text-anchor="start">WEAKEST HY TIER, BP, ITS OWN SCALE</text>
+<text x="79.0" y="32.0" class="tm" text-anchor="end">← TIGHTER</text>
+<text x="95.0" y="32.0" class="tm" text-anchor="start">WIDER →</text>
+<text x="0" y="56"><tspan class="t tb">CCC spread</tspan><tspan class="ts tmu" dx="10">1,402bp on 20 Nov</tspan></text>
+<text x="0.0" y="79.0" class="tm" text-anchor="start">Last month</text>
+<text x="358" y="79" text-anchor="end"><tspan class="ts tmu">21 Oct to 20 Nov</tspan><tspan class="t tb" dx="6">+95bp</tspan></text>
+<rect x="87.0" y="86.0" width="117.1" height="10.0" rx="2" class="mo"><title>CCC spread: +95bp from 21 Oct to 20 Nov</title></rect>
+<line x1="87.0" y1="83.0" x2="87.0" y2="99.0" class="ln"/>
+<text x="0.0" y="117.0" class="tm" text-anchor="start">Expected, 6 months</text>
+<text x="358" y="117" text-anchor="end"><tspan class="ts tmu">proposal</tspan><tspan class="t tb" dx="6">+176bp</tspan></text>
+<rect x="87.0" y="124.0" width="217.3" height="10.0" rx="2" class="ex"><title>CCC spread: expected move +176bp, a proposal</title></rect>
+<line x1="87.0" y1="121.0" x2="87.0" y2="137.0" class="ln"/>
+<text x="0.0" y="155.0" class="tm" text-anchor="start">By scenario, probability times move</text>
+<rect x="35.2" y="162.0" width="49.8" height="14.0" rx="2" class="seg s1"><title>Scenario 1: −42bp</title></rect>
+<text x="60.1" y="173.0" class="tm s1t" text-anchor="middle">1</text>
+<rect x="89.0" y="162.0" width="11.7" height="14.0" rx="2" class="seg s2"><title>Scenario 2: +11bp</title></rect>
+<rect x="102.6" y="162.0" width="73.4" height="14.0" rx="2" class="seg s3"><title>Scenario 3: +61bp</title></rect>
+<text x="139.4" y="173.0" class="tm s3t" text-anchor="middle">3</text>
+<rect x="178.1" y="162.0" width="74.4" height="14.0" rx="2" class="seg s4"><title>Scenario 4: +62bp</title></rect>
+<text x="215.3" y="173.0" class="tm s4t" text-anchor="middle">4</text>
+<rect x="254.5" y="162.0" width="101.5" height="14.0" rx="2" class="seg s5"><title>Scenario 5: +84bp</title></rect>
+<text x="305.2" y="173.0" class="tm s5t" text-anchor="middle">5</text>
+<line x1="87.0" y1="159.0" x2="87.0" y2="180.0" class="ln"/>
+<rect x="0.0" y="186.0" width="10.0" height="10.0" rx="2" class="seg s1"></rect>
+<text x="14.0" y="196"><tspan class="tm">1</tspan><tspan class="ts" dx="5">−42bp</tspan></text>
+<rect x="71.6" y="186.0" width="10.0" height="10.0" rx="2" class="seg s2"></rect>
+<text x="85.6" y="196"><tspan class="tm">2</tspan><tspan class="ts" dx="5">+11bp</tspan></text>
+<rect x="143.2" y="186.0" width="10.0" height="10.0" rx="2" class="seg s3"></rect>
+<text x="157.2" y="196"><tspan class="tm">3</tspan><tspan class="ts" dx="5">+61bp</tspan></text>
+<rect x="214.8" y="186.0" width="10.0" height="10.0" rx="2" class="seg s4"></rect>
+<text x="228.8" y="196"><tspan class="tm">4</tspan><tspan class="ts" dx="5">+62bp</tspan></text>
+<rect x="286.4" y="186.0" width="10.0" height="10.0" rx="2" class="seg s5"></rect>
+<text x="300.4" y="196"><tspan class="tm">5</tspan><tspan class="ts" dx="5">+84bp</tspan></text>
+</svg>
+
+      <figcaption>For IG and HY the expected six-month move is larger than last month&#x27;s move, and scenarios 4 and 5 add the most to IG.</figcaption>
+    </figure>
+    <p>The expected values are proposals, because every probability and every scenario move is a judgement. The grid puts the expected ratio at 0.58. A part left of the zero line comes from a scenario that pulls the reading down.</p>
+    <details class="tbl"><summary>Show the numbers as a table</summary><div class="scroll"><table><thead><tr><th scope="col">Row</th><th scope="col">Now</th><th scope="col">Last month</th><th scope="col">Expected</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead><tbody><tr><th scope="row">IG index spread</th><td>98bp on 20 Nov</td><td>+10bp from 21 Oct</td><td>+19bp</td><td>−3bp</td><td>+5bp</td><td>+3bp</td><td>+6bp</td><td>+8bp</td></tr>
+<tr><th scope="row">HY index spread</th><td>376bp on 20 Nov</td><td>+49bp from 21 Oct</td><td>+71bp</td><td>−15bp</td><td>+7bp</td><td>+19bp</td><td>+25bp</td><td>+35bp</td></tr>
+<tr><th scope="row">AA to BBB ratio, the axis</th><td>0.590 on 20 Nov</td><td>+0.012 from 21 Oct</td><td>−0.008</td><td>+0.002</td><td>+0.021</td><td>−0.021</td><td>−0.007</td><td>−0.003</td></tr>
+<tr><th scope="row">AA spread</th><td>72bp on 20 Nov</td><td>+9bp from 21 Oct</td><td>+12bp</td><td>−2bp</td><td>+6bp</td><td>0bp</td><td>+3bp</td><td>+5bp</td></tr>
+<tr><th scope="row">BBB spread</th><td>122bp on 20 Nov</td><td>+13bp from 21 Oct</td><td>+23bp</td><td>−4bp</td><td>+5bp</td><td>+5bp</td><td>+8bp</td><td>+10bp</td></tr>
+<tr><th scope="row">CCC spread</th><td>1,402bp on 20 Nov</td><td>+95bp from 21 Oct</td><td>+176bp</td><td>−42bp</td><td>+11bp</td><td>+61bp</td><td>+62bp</td><td>+84bp</td></tr>
+</tbody></table></div></details>
+  </section>
+
+  <section>
+    <h2>Four falsifiers</h2>
+    <div class="tiles">
+      <article class="tile"><div class="hd"><span class="id">F1</span><span class="chip"><svg viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="3.5"/></svg>Not triggered</span></div><h3>Top-rated spreads carry a supply premium</h3><svg class="meter" viewBox="0 0 300 60" role="img" aria-label="The ratio is 0.590 today. The falsifier triggers below 0.52."><rect x="8.0" y="24.0" width="142.0" height="10.0" rx="0" class="zone"></rect><line x1="8.0" y1="29.0" x2="292.0" y2="29.0" class="hair"/><line x1="150.0" y1="16.0" x2="150.0" y2="42.0" class="thr"/><circle cx="212.1" cy="29" r="6" class="dot-today"/><text x="212.1" y="14.0" class="tm tk" text-anchor="middle">today 0.590</text><text x="150.0" y="56.0" class="tm" text-anchor="middle">triggers below 0.52</text></svg><dl><dt>Observable</dt><dd>AA to BBB ratio, FRED</dd><dt>Threshold</dt><dd>Below 0.52 before 2027-05-23, while none of the five largest spenders has cut 2027 capex guidance</dd><dt>Today</dt><dd>0.590, up from the previous memo</dd></dl></article>
+<article class="tile"><div class="hd"><span class="id">F2</span><span class="chip"><svg viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="3.5"/></svg>Not triggered</span></div><h3>This is a repricing, not a break</h3><dl><dt>Observable</dt><dd>IG primary calendar and Fed H.4.1</dd><dt>Threshold</dt><dd>Five business days with no IG deals outside holidays, or a new Fed emergency facility</dd><dt>Today</dt><dd>No such report. Thanksgiving week does not count.</dd></dl></article>
+<article class="tile"><div class="hd"><span class="id">F3</span><span class="chip"><svg viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="3.5"/></svg>Not triggered</span></div><h3>Weak credit is repriced</h3><svg class="meter" viewBox="0 0 300 60" role="img" aria-label="The CCC spread is 1,402bp today. The falsifier triggers above 1,700bp."><rect x="248.3" y="24.0" width="43.7" height="10.0" rx="0" class="zone"></rect><line x1="8.0" y1="29.0" x2="292.0" y2="29.0" class="hair"/><line x1="248.3" y1="16.0" x2="248.3" y2="42.0" class="thr"/><circle cx="183.9" cy="29" r="6" class="dot-today"/><text x="183.9" y="14.0" class="tm tk" text-anchor="middle">today 1,402bp</text><text x="292.0" y="56.0" class="tm" text-anchor="end">triggers above 1,700bp</text></svg><dl><dt>Observable</dt><dd>CCC spread, FRED</dd><dt>Threshold</dt><dd>Above 1,700bp</dd><dt>Today</dt><dd>1,402bp on 20 Nov, up 49bp in two days</dd></dl></article>
+<article class="tile"><div class="hd"><span class="id">F4</span><span class="chip"><svg viewBox="0 0 10 10" aria-hidden="true"><circle cx="5" cy="5" r="3.5"/></svg>Not triggered</span></div><h3>The Fed keeps hiking</h3><dl><dt>Observable</dt><dd>Fed funds upper bound, FRED</dd><dt>Threshold</dt><dd>Still 4.00% after the January 2027 meeting</dd><dt>Today</dt><dd>4.00%. The next meeting is 9 Dec. It cannot trigger before late January.</dd></dl></article>
+
+    </div>
+    <p class="cap">No falsifier is triggered or close. F1 moved away from its threshold, and F3 moved toward its threshold.</p>
+  </section>
+
+  <section>
+    <h2>Where the sources disagree</h2>
+    <p class="cap">The sources still disagree on these points, and this page does not settle them.</p>
+    <p class="group">In the memo</p>
+<div class="dislist"><article class="dis"><h3>Does supply matter?</h3><div class="sides"><div class="side"><span class="who">Willer</span><p>No, for monthly issuance.</p></div><svg class="vs" viewBox="0 0 40 20" role="img" aria-label="against"><line x1="9" y1="10" x2="31" y2="10" class="ln"/><polygon points="2,10 10,6 10,14" class="ah"/><polygon points="38,10 30,6 30,14" class="ah"/></svg><div class="side"><span class="who">Dalio and Cassidy</span><p>A debt-financed build is the core risk.</p></div></div><p class="why">They measure different things.</p></article>
+<article class="dis"><h3>Does supply show in spreads?</h3><div class="sides"><div class="side"><span class="who">BIS study</span><p>AI news days did not move the IG index spread.</p></div><svg class="vs" viewBox="0 0 40 20" role="img" aria-label="against"><line x1="9" y1="10" x2="31" y2="10" class="ln"/><polygon points="2,10 10,6 10,14" class="ah"/><polygon points="38,10 30,6 30,14" class="ah"/></svg><div class="side"><span class="who">JunkBondInvestor and the FRED ratio</span><p>AA spreads press against A and BBB spreads.</p></div></div><p class="why">The first tests single days on the index. The second reads the rating mix over a year.</p></article>
+<article class="dis"><h3>Is HY wide?</h3><div class="sides"><div class="side"><span class="who">Three-year percentile</span><p>Yes. HY at 376bp is at the 96th percentile.</p></div><svg class="vs" viewBox="0 0 40 20" role="img" aria-label="against"><line x1="9" y1="10" x2="31" y2="10" class="ln"/><polygon points="2,10 10,6 10,14" class="ah"/><polygon points="38,10 30,6 30,14" class="ah"/></svg><div class="side"><span class="who">Ilmanen&#x27;s long-run average</span><p>No. The 1989 to 2020 average is about 520bp.</p></div></div></article>
+<article class="dis"><h3>Is a capex cut good for credit?</h3><div class="sides"><div class="side"><span class="who">JunkBondInvestor and PIMCO</span><p>Yes for the bonds of the largest spenders, if all cut together. Slower building cuts issuance.</p></div><svg class="vs" viewBox="0 0 40 20" role="img" aria-label="against"><line x1="9" y1="10" x2="31" y2="10" class="ln"/><polygon points="2,10 10,6 10,14" class="ah"/><polygon points="38,10 30,6 30,14" class="ah"/></svg><div class="side"><span class="who">The same letter</span><p>Signed leases keep fixed claims rising.</p></div></div></article>
+<article class="dis"><h3>How large is the supply from the largest cloud companies this year?</h3><div class="sides"><div class="side"><span class="who">An LSEG count</span><p>$370.7bn.</p></div><svg class="vs" viewBox="0 0 40 20" role="img" aria-label="against"><line x1="9" y1="10" x2="31" y2="10" class="ln"/><polygon points="2,10 10,6 10,14" class="ah"/><polygon points="38,10 30,6 30,14" class="ah"/></svg><div class="side"><span class="who">The X account of JunkBondInvestor, 20 Nov</span><p>$620bn, with no definition.</p></div></div></article>
+<article class="dis"><h3>How risky are bank lines to lending funds?</h3><div class="sides"><div class="side"><span class="who">Fed staff</span><p>The direct risk is limited, on 2024 data.</p></div><svg class="vs" viewBox="0 0 40 20" role="img" aria-label="against"><line x1="9" y1="10" x2="31" y2="10" class="ln"/><polygon points="2,10 10,6 10,14" class="ah"/><polygon points="38,10 30,6 30,14" class="ah"/></svg><div class="side"><span class="who">Schulte</span><p>Hidden leverage sits there.</p></div></div></article>
+<article class="dis"><h3>Will the Fed hike in December?</h3><div class="sides"><div class="side"><span class="who">Market pricing before the fall</span><p>About 96% odds of a hike.</p></div><svg class="vs" viewBox="0 0 40 20" role="img" aria-label="against"><line x1="9" y1="10" x2="31" y2="10" class="ln"/><polygon points="2,10 10,6 10,14" class="ah"/><polygon points="38,10 30,6 30,14" class="ah"/></svg><div class="side"><span class="who">One history table</span><p>No hike since 1990 with the VIX above 30. The VIX closed at 35.89 on 20 Nov.</p></div></div><p class="why">No source gives the odds after the fall.</p></article>
+<article class="dis"><h3>How large is 2027 supply?</h3><div class="sides"><div class="side"><span class="who">Bank forecasts</span><p>$420bn to $450bn of IG debt from the largest cloud companies.</p></div><svg class="vs" viewBox="0 0 40 20" role="img" aria-label="against"><line x1="9" y1="10" x2="31" y2="10" class="ln"/><polygon points="2,10 10,6 10,14" class="ah"/><polygon points="38,10 30,6 30,14" class="ah"/></svg><div class="side"><span class="who">Wider definitions</span><p>Much larger counts.</p></div></div></article>
+<article class="dis"><h3>Did the Nvidia board reinstate its former chief executive on 23 Nov?</h3><div class="sides"><div class="side"><span class="who">One X account</span><p>Yes, with the shares up 25% before the open.</p></div><svg class="vs" viewBox="0 0 40 20" role="img" aria-label="against"><line x1="9" y1="10" x2="31" y2="10" class="ln"/><polygon points="2,10 10,6 10,14" class="ah"/><polygon points="38,10 30,6 30,14" class="ah"/></svg><div class="side"><span class="who">A web search</span><p>A report says the board does not intend to do so.</p></div></div></article>
+<article class="dis"><h3>How large is the SpaceX chip financing, and can the chips leave Earth?</h3><div class="sides"><div class="side"><span class="who">One newsletter</span><p>$44bn, and lenders barred it.</p></div><svg class="vs" viewBox="0 0 40 20" role="img" aria-label="against"><line x1="9" y1="10" x2="31" y2="10" class="ln"/><polygon points="2,10 10,6 10,14" class="ah"/><polygon points="38,10 30,6 30,14" class="ah"/></svg><div class="side"><span class="who">Another newsletter</span><p>$43bn, and the final terms are unclear.</p></div></div></article>
+</div>
+  </section>
+
+  <section>
+    <h2>Evidence against attention</h2>
+    <figure>
+      <svg class="dg dg-wide" viewBox="0 0 720 310" role="img" aria-label="Two by two grid of fact strength against attention. Strong facts and little attention: AA supply premium. Strong facts and crowded: AI debt is a problem. Thin facts and little attention: Bank-loan and vehicle store of AI debt." preserveAspectRatio="xMidYMid meet">
+<rect x="30.0" y="6.0" width="344.0" height="138.0" rx="0" class="range"></rect>
+<rect x="30.0" y="6.0" width="688.0" height="276.0" rx="0" class="frame"></rect>
+<line x1="374.0" y1="6.0" x2="374.0" y2="282.0" class="hair"/>
+<line x1="30.0" y1="144.0" x2="718.0" y2="144.0" class="hair"/>
+<text x="30.0" y="302.0" class="tm" text-anchor="start">LITTLE ATTENTION</text>
+<text x="718.0" y="302.0" class="tm" text-anchor="end">CROWDED</text>
+<text transform="translate(16 10) rotate(-90)" class="tm" text-anchor="end">STRONG FACTS</text>
+<text transform="translate(16 282) rotate(-90)" class="tm" text-anchor="start">THIN FACTS</text>
+<text x="42.0" y="32.0" class="t tb" text-anchor="start">AA supply premium</text>
+<text x="42.0" y="51.0" class="ts" text-anchor="start">One credit letter</text>
+<text x="42.0" y="67.0" class="ts" text-anchor="start">named it on 22 Nov</text>
+<circle cx="50.0" cy="90.0" r="6" class="dot-today"/>
+<line x1="60.0" y1="90.0" x2="114.0" y2="90.0" class="ln"/>
+<polygon points="122.0,90.0 114.0,94.0 114.0,86.0" class="ah"/>
+<text x="42.0" y="114.0" class="tm" text-anchor="start">no new mention today</text>
+<text x="386.0" y="32.0" class="t tb" text-anchor="start">AI debt is a problem</text>
+<text x="386.0" y="51.0" class="ts" text-anchor="start">Many posts and letters.</text>
+<text x="386.0" y="67.0" class="ts" text-anchor="start">Weak credit shows it</text>
+<circle cx="692.0" cy="90.0" r="6" class="dot"/>
+<text x="42.0" y="170.0" class="t tb" text-anchor="start">Bank-loan and vehicle</text>
+<text x="42.0" y="187.0" class="t tb" text-anchor="start">store of AI debt</text>
+<text x="42.0" y="206.0" class="ts" text-anchor="start">One account, two loan</text>
+<text x="42.0" y="222.0" class="ts" text-anchor="start">sales, the BIS loss map</text>
+<circle cx="50.0" cy="245.0" r="6" class="dot"/>
+<text x="386.0" y="170.0" class="ts tmu" text-anchor="start">No claim named here</text>
+</svg>
+<svg class="dg dg-narrow" viewBox="0 0 358 310" role="img" aria-label="Two by two grid of fact strength against attention. Strong facts and little attention: AA supply premium. Strong facts and crowded: AI debt is a problem. Thin facts and little attention: Bank-loan and vehicle store of AI debt." preserveAspectRatio="xMidYMid meet">
+<rect x="30.0" y="6.0" width="163.0" height="138.0" rx="0" class="range"></rect>
+<rect x="30.0" y="6.0" width="326.0" height="276.0" rx="0" class="frame"></rect>
+<line x1="193.0" y1="6.0" x2="193.0" y2="282.0" class="hair"/>
+<line x1="30.0" y1="144.0" x2="356.0" y2="144.0" class="hair"/>
+<text x="30.0" y="302.0" class="tm" text-anchor="start">LITTLE ATTENTION</text>
+<text x="356.0" y="302.0" class="tm" text-anchor="end">CROWDED</text>
+<text transform="translate(16 10) rotate(-90)" class="tm" text-anchor="end">STRONG FACTS</text>
+<text transform="translate(16 282) rotate(-90)" class="tm" text-anchor="start">THIN FACTS</text>
+<text x="42.0" y="32.0" class="t tb" text-anchor="start">AA supply premium</text>
+<text x="42.0" y="51.0" class="ts" text-anchor="start">One credit letter</text>
+<text x="42.0" y="67.0" class="ts" text-anchor="start">named it on 22 Nov</text>
+<circle cx="50.0" cy="90.0" r="6" class="dot-today"/>
+<line x1="60.0" y1="90.0" x2="114.0" y2="90.0" class="ln"/>
+<polygon points="122.0,90.0 114.0,94.0 114.0,86.0" class="ah"/>
+<text x="42.0" y="114.0" class="tm" text-anchor="start">no new</text>
+<text x="42.0" y="129.0" class="tm" text-anchor="start">mention today</text>
+<text x="205.0" y="32.0" class="t tb" text-anchor="start">AI debt is a problem</text>
+<text x="205.0" y="51.0" class="ts" text-anchor="start">Many posts and letters.</text>
+<text x="205.0" y="67.0" class="ts" text-anchor="start">Weak credit shows it</text>
+<circle cx="330.0" cy="90.0" r="6" class="dot"/>
+<text x="42.0" y="170.0" class="t tb" text-anchor="start">Bank-loan and vehicle</text>
+<text x="42.0" y="187.0" class="t tb" text-anchor="start">store of AI debt</text>
+<text x="42.0" y="206.0" class="ts" text-anchor="start">One account, two loan</text>
+<text x="42.0" y="222.0" class="ts" text-anchor="start">sales, the BIS loss map</text>
+<circle cx="50.0" cy="245.0" r="6" class="dot"/>
+<text x="205.0" y="170.0" class="ts tmu" text-anchor="start">No claim named here</text>
+</svg>
+
+      <figcaption>The AA supply premium has strong facts and rising attention, after one widely read letter named it on 22 Nov.</figcaption>
+    </figure>
+    <p>The bank-loan claim gained a second loan sale today, but its facts stay thin.</p>
+  </section>
+
+  <section>
+    <h2>What feeds the view</h2>
+    <figure>
+      <svg class="dg dg-wide" viewBox="0 0 720 210" role="img" aria-label="17 X accounts, Newsletters, FRED readings, Web checks feed these steps in order: 35 skills, Scenario grid, Memo." preserveAspectRatio="xMidYMid meet">
+<rect x="1.0" y="1.0" width="150.0" height="46.0" rx="0" class="box"></rect>
+<text x="12.0" y="21.0" class="t tb" text-anchor="start">17 X accounts</text>
+<text x="12.0" y="38.0" class="ts tmu" text-anchor="start">no collection failure</text>
+<line x1="151.0" y1="24.0" x2="162.0" y2="24.0" class="ln"/>
+<rect x="1.0" y="55.0" width="150.0" height="46.0" rx="0" class="box"></rect>
+<text x="12.0" y="75.0" class="t tb" text-anchor="start">Newsletters</text>
+<text x="12.0" y="92.0" class="ts tmu" text-anchor="start">4 new threads read</text>
+<line x1="151.0" y1="78.0" x2="162.0" y2="78.0" class="ln"/>
+<rect x="1.0" y="109.0" width="150.0" height="46.0" rx="0" class="box"></rect>
+<text x="12.0" y="129.0" class="t tb" text-anchor="start">FRED readings</text>
+<text x="12.0" y="146.0" class="ts tmu" text-anchor="start">prints of 20 Nov</text>
+<line x1="151.0" y1="132.0" x2="162.0" y2="132.0" class="ln"/>
+<rect x="1.0" y="163.0" width="150.0" height="46.0" rx="0" class="box"></rect>
+<text x="12.0" y="183.0" class="t tb" text-anchor="start">Web checks</text>
+<text x="12.0" y="200.0" class="ts tmu" text-anchor="start">none of 4 confirmed</text>
+<line x1="151.0" y1="186.0" x2="162.0" y2="186.0" class="ln"/>
+<line x1="162.0" y1="24.0" x2="162.0" y2="186.0" class="ln"/>
+<line x1="162.0" y1="105.0" x2="178.0" y2="105.0" class="ln"/>
+<polygon points="186.0,105.0 178.0,109.0 178.0,101.0" class="ah"/>
+<rect x="186.0" y="71.0" width="120.0" height="68.0" rx="0" class="box"></rect>
+<text x="196.0" y="97.0" class="t tb" text-anchor="start">35 skills</text>
+<text x="196.0" y="116.0" class="ts tmu" text-anchor="start">23 give a method</text>
+<line x1="306.0" y1="105.0" x2="316.0" y2="105.0" class="ln"/>
+<polygon points="324.0,105.0 316.0,109.0 316.0,101.0" class="ah"/>
+<rect x="324.0" y="71.0" width="120.0" height="68.0" rx="0" class="box"></rect>
+<text x="334.0" y="97.0" class="t tb" text-anchor="start">Scenario grid</text>
+<text x="334.0" y="116.0" class="ts tmu" text-anchor="start">28 rows</text>
+<text x="334.0" y="131.0" class="ts tmu" text-anchor="start">139 scenarios</text>
+<line x1="444.0" y1="105.0" x2="454.0" y2="105.0" class="ln"/>
+<polygon points="462.0,105.0 454.0,109.0 454.0,101.0" class="ah"/>
+<rect x="462.0" y="71.0" width="120.0" height="68.0" rx="0" class="box"></rect>
+<text x="472.0" y="97.0" class="t tb" text-anchor="start">Memo</text>
+<text x="472.0" y="116.0" class="ts tmu" text-anchor="start">four gates</text>
+<text x="472.0" y="131.0" class="ts tmu" text-anchor="start">all pass</text>
+</svg>
+<svg class="dg dg-narrow" viewBox="0 0 358 343" role="img" aria-label="17 X accounts, Newsletters, FRED readings, Web checks feed these steps in order: 35 skills, Scenario grid, Memo." preserveAspectRatio="xMidYMid meet">
+<rect x="1.0" y="1.0" width="174.0" height="48.0" rx="0" class="box"></rect>
+<text x="11.0" y="22.0" class="t tb" text-anchor="start">17 X accounts</text>
+<text x="11.0" y="39.0" class="ts tmu" text-anchor="start">no collection failure</text>
+<rect x="183.0" y="1.0" width="174.0" height="48.0" rx="0" class="box"></rect>
+<text x="193.0" y="22.0" class="t tb" text-anchor="start">Newsletters</text>
+<text x="193.0" y="39.0" class="ts tmu" text-anchor="start">4 new threads read</text>
+<rect x="1.0" y="57.0" width="174.0" height="48.0" rx="0" class="box"></rect>
+<text x="11.0" y="78.0" class="t tb" text-anchor="start">FRED readings</text>
+<text x="11.0" y="95.0" class="ts tmu" text-anchor="start">prints of 20 Nov</text>
+<rect x="183.0" y="57.0" width="174.0" height="48.0" rx="0" class="box"></rect>
+<text x="193.0" y="78.0" class="t tb" text-anchor="start">Web checks</text>
+<text x="193.0" y="95.0" class="ts tmu" text-anchor="start">none of 4 confirmed</text>
+<line x1="88.0" y1="105.0" x2="88.0" y2="119.0" class="ln"/>
+<line x1="270.0" y1="105.0" x2="270.0" y2="119.0" class="ln"/>
+<line x1="88.0" y1="119.0" x2="270.0" y2="119.0" class="ln"/>
+<line x1="179.0" y1="119.0" x2="179.0" y2="137.0" class="ln"/>
+<polygon points="179.0,145.0 175.0,137.0 183.0,137.0" class="ah"/>
+<rect x="1.0" y="145.0" width="356.0" height="48.0" rx="0" class="box"></rect>
+<text x="14.0" y="166.0" class="t tb" text-anchor="start">35 skills</text>
+<text x="14.0" y="183.0" class="ts tmu" text-anchor="start">23 give a method</text>
+<line x1="179.0" y1="193.0" x2="179.0" y2="211.0" class="ln"/>
+<polygon points="179.0,219.0 175.0,211.0 183.0,211.0" class="ah"/>
+<rect x="1.0" y="219.0" width="356.0" height="48.0" rx="0" class="box"></rect>
+<text x="14.0" y="240.0" class="t tb" text-anchor="start">Scenario grid</text>
+<text x="14.0" y="257.0" class="ts tmu" text-anchor="start">28 rows, 139 scenarios</text>
+<line x1="179.0" y1="267.0" x2="179.0" y2="285.0" class="ln"/>
+<polygon points="179.0,293.0 175.0,285.0 183.0,285.0" class="ah"/>
+<rect x="1.0" y="293.0" width="356.0" height="48.0" rx="0" class="box"></rect>
+<text x="14.0" y="314.0" class="t tb" text-anchor="start">Memo</text>
+<text x="14.0" y="331.0" class="ts tmu" text-anchor="start">four gates, all pass</text>
+</svg>
+
+      <figcaption>The same inputs feed a new memo and a new email every two days.</figcaption>
+    </figure>
+    <p class="note">Limits. All credit spreads are dated 20 Nov. Two X accounts describe an equity rebound on 23 Nov, so the spreads may now be too wide. None of the four web searches confirmed its fact. The 17 X accounts come from one person&#x27;s follow list.</p>
+  </section>
+
+  <p class="foot"><span>As of 2026-11-23. Research only. Scenario probabilities are proposals.</span><span>Source: the thesis run of 2026-11-23, its scenario grid, its FRED readings and its X account summary.</span></p>
+</div>

@@ -1,0 +1,68 @@
+Subject: Credit thesis update 2026-11-23 (chain explained): no material change, spreads predate 20 Nov fall
+
+Where the AI debt is not priced
+
+Nothing in our data moved since the previous memo. The market readings and scenario probabilities are unchanged, and no falsifier triggered. FRED has published no spread after 19 Nov, so both memos use the same prints. These spreads may be too low, because the S&P 500 fell 3.7% on 20 Nov. In our view the thesis stands. The bond market prices about two thirds of next year's AI debt supply in top-rated spreads and has repriced the weak AI borrowers, but it does not yet price the AI debt that sits in bank loans, private credit and off-balance-sheet vehicles. The skill sweep grew from 21 to 35 skills. A widely read credit letter named the AA supply premium on 22 Nov, which makes that point less of an edge. This version expands the causal chain and tests each link against all 35 skills.
+
+The causal chain
+
+The chain starts with concentration. A few AA and A rated companies sell between 14% and 20% of 2026 IG issuance. They borrow because their capex now exceeds their operating cash flow. That supply lifts spreads in the tier, meaning the AA and A rating group, against lower-rated spreads. The pressure stays there because investors treat rating groups as weak substitutes. In one study a flow of 1% of a rating group moved its price 3.94%, with no spillover to other IG groups (Chaudhary). However, the study measures fund flows and not issuance, and its effect faded within a quarter at a finer level.
+
+Part of the supply lands in Treasury yields, because long AI bonds go to the investors who hold long Treasuries. The BIS measured about 1.5bp on the 10-year term premium, meaning the extra yield for holding long bonds, on 18 AI news days. The IG index spread moved 0.13bp on the same days, which makes it a weak gauge of supply. The effect was gone in two days, and the authors do not call it causal. On rates, the 2-year yield is 4.76% against a 4.00% policy ceiling. The curve therefore holds about three hikes, and only a surprise in the path is new (Shahidi).
+
+The market sorts AI borrowers by the support of a big-tech customer, because that customer's lease pays the debt. Oracle CDS is 341bp and CCC spreads are 1,361bp. The BIS adds that the support is partial and usually capped. Borrowers also move debt into vehicles, meaning separate companies that own the data centre and issue the debt, and into bank loans and private credit. One vehicle's A-rated notes priced about 80bp wider than its parent's BBB bonds. This debt leaves the bond indices, and one bank passed on a data-centre loan at a mid-80s price. However, the BIS found in January that private lenders priced AI loans like other loans.
+
+Wider spreads slow projects, and slower projects need less debt, because costly or volatile funding cuts long projects first (Cowen). This link is the thinnest. No large spender cut 2027 capex, and competitors rarely pull back alone (Cassidy). A capex cut would not remove signed leases, and about $1.3tn of them have not started. Debt service is fixed, so a modest revenue shortfall becomes a large loss for junior lenders (Van Nieuwerburgh). Less bond supply can therefore arrive with more stress at vehicles and lenders.
+
+What would be true if we were wrong
+
+If supply did not matter, AA spreads would move with the rest of IG, and the ratio would sit near its mean of 0.476. Our files show the ratio at 0.581, AA at its 99th percentile and BBB at its 80th. The gap between A and AA fell from 18bp to 10bp in a year. In our view supply explains that pattern best, although the 0.13bp index result fits the opposite view.
+
+The strongest objection
+
+Willer says supply is endogenous: companies issue when demand is strong, so supply does not forecast returns. The book ignores supply forecasts. In our view this weakens the second link, and with it our estimate that top ratings price two thirds. It rests on backtests of monthly supply and index returns, and it does not compare one tier with another. It leaves the vehicle and lease links untouched.
+
+The axis and what it prices
+
+We read supply in the AA to BBB spread ratio. A high ratio means the market charges top-rated issuers more than usual against BBB issuers. The ratio is 0.581 today, with AA at 68bp and BBB at 117bp. Against a three-year mean of 0.476, that is the 92nd percentile.
+
+What is priced differs by market, and the estimates are our judgement. Top ratings price about two thirds: about 12bp of the 68bp AA spread is supply premium. Weak AI borrowers are repriced, with CCC spreads at 1,361bp and Oracle CDS at 341bp. The HY index is not cheap on a long view, because 352bp is below its long-run average of about 520bp. The IG index prices little. IG at 94bp is fair only if Supply absorbed has a 58% chance, and the grid gives it 28%. Treasury yields price an unknown part. Bank loans, private credit and vehicles are not priced in bonds.
+
+Scenarios
+
+The probabilities are proposals. Higher rates, supply grind is evidence weighted, and the other four are PM assumptions. Moves are six-month spread changes.
+Supply absorbed: 28%. IG -12bp, HY -52bp.
+Higher rates, supply grind: 37%. IG +14bp, HY +18bp.
+AI digestion (capex cut): 18%. IG +18bp, HY +108bp.
+Hard landing: 10%. IG +56bp, HY +248bp.
+Funding accident: 7%. IG +116bp, HY +498bp.
+None changed today. A December hike is still priced near 96%, and no large spender cut 2027 capex. The expected move is IG +19bp and HY +71bp. The two tail scenarios hold 17% of the probability and about three quarters of the expected IG move.
+
+Falsifiers
+
+None of the four triggered.
+F1. AA to BBB ratio below 0.52 before 2027-05-23 while none of the five largest spenders has cut 2027 capex guidance. Today 0.581. Not triggered.
+F2. Five business days with no IG deals outside holidays, or a new Fed emergency facility. No such report. Not triggered.
+F3. CCC spread above 1,700bp. Today 1,361bp, dated 19 Nov, before the 20 Nov fall. Not triggered.
+F4. Fed funds upper bound still 4.00% after the January 2027 meeting. Today 4.00%, next meeting 9 Dec. Not triggered.
+
+Where sources disagree (both sides reported, none settled)
+
+1. Does supply matter? Willer says no for monthly issuance. Dalio and Cassidy say a debt-financed build is the core risk.
+2. Does supply show in spreads? The BIS finds no IG index move on AI news days. JunkBondInvestor and the FRED ratio show AA pressed against A and BBB.
+3. Is HY wide? The three-year percentile says yes. Ilmanen's long-run average says no.
+4. Is a capex cut good for credit? JunkBondInvestor says yes for hyperscaler bonds, if all cut together. The same letter says signed leases keep fixed claims rising.
+5. How large is the hyperscaler share? The same author gives 14% of non-financial IG against one fifth of all IG.
+6. How risky are bank lines to lending funds? Fed staff call the direct risk limited. Schulte says that is where hidden leverage sits.
+7. Will the Fed hike in December? Markets price about 96%. One table shows no hike since 1990 with the VIX above 30.
+8. How large is 2027 supply? Bank forecasts give $420bn to $450bn of hyperscaler IG debt. Wider definitions give much larger counts.
+
+Open questions for the PM
+
+1. How do the banks, insurers and private funds that hold AI loans fund themselves?
+2. Should the funding-accident test change shape? The BIS expects a valuation freeze and late loss recognition, not a run.
+3. Are the hard-landing moves too small?
+4. Do the largest spenders earn enough from AI to service the debt?
+5. Does the AA premium need continuing supply to last? If so, a pause in issuance would pull the ratio down without any capex cut.
+
+This is research only. It contains no trades.

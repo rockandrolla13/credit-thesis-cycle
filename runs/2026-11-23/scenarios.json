@@ -1,0 +1,1508 @@
+{
+ "as_of": "2026-11-23",
+ "horizon": "2027-05-23",
+ "horizon_months": 6,
+ "findings": [
+  "The market already prices AI supply in the top ratings. AA spreads rose from 0.47 to 0.59 of BBB spreads in a year, and the A-minus-AA gap fell from 18bp to 9bp. That ratio is the axis for the supply question. It rises to about 0.65 if supply grinds on and falls to about 0.47 if capex is cut. The year-ago values are carried from the previous grid.",
+  "A capex cut splits credit in two. It helps the bonds of the large AI spenders, because they borrow less. It hurts everyone who lent against the build-out: HY technology, HY power producers, HY real estate and non-bank lenders.",
+  "Today's spreads are fair only if calm is about twice as likely as judged here. IG at 98bp needs a 58% weight on 'Supply absorbed', against 28% here.",
+  "Most of the expected widening comes from two tail scenarios. Hard landing and funding accident carry 17% of the probability and about three quarters of the expected IG move. The two most likely scenarios move IG by -12bp to +14bp.",
+  "IG income covers only 7bp of widening over six months. Four of the five scenarios exceed that. HY income covers 61bp before default losses.",
+  "The Willer and Saunders lending-standards rule was checked again on 23 Nov 2026 and still says not to hold credit spread risk (SLOOS +1.7). The volatility rule could not be recomputed from today's readings. Its 22 Nov result is carried.",
+  "No spine probability changed on 23 Nov 2026. Every 'now' spread is now the 20 Nov print, so the 20 Nov equity fall is in these spreads. IG is 98bp from 94bp, HY is 376bp from 352bp and CCC is 1402bp from 1361bp. The scenario moves are unchanged, so every scenario level moved with its starting point."
+ ],
+ "limits": [
+  "Every probability and spread move is judgement. The script checks coherence, not correctness.",
+  "Free data has no sector spread levels. Sector rows are changes from today, and the weights are rough index shares.",
+  "Spread durations of 6.6 years for IG and 3.1 years for HY are assumptions, not index data.",
+  "Carry cover ignores default losses. For HY the true cushion is smaller.",
+  "The fair-value weights assume today's spread equals the expected future spread. That ignores the risk premium.",
+  "Several news facts rest on one source each. One example is the 20bp tech premium. The force majeure item now has a second source, which describes a precautionary lease notice and not a loan default.",
+  "All 'now' spreads are dated 20 Nov 2026. They predate an equity rebound on 23 Nov that two X accounts describe and no other source confirms."
+ ],
+ "calibration": [
+  "April 2025 peak: IG 121bp, HY 461bp (FRED). Used as the size of a growth scare without recession.",
+  "One-year range to 19 Nov 2026: IG 73 to 94bp, HY 260 to 352bp (FRED). Used for the calm scenario.",
+  "Willer and Saunders ch03 Table 3.5: median recession widening of 124bp for IG and about 785bp for HY. Used to cap the accident scenario.",
+  "2022 hiking-cycle peaks near IG 165bp and HY 600bp. From memory, not checked against data.",
+  "BIS Bulletin 140 event study to September 2026: AI financing news moved the IG index spread by 0.13bp, not significant (bis sec03). Used as a reason to read supply in the rating mix and not in the IG index.",
+  "Off-balance-sheet premium: about 100 to 130bp in October 2025 (bis sec02, van-nieuwerburgh sec04). Not used to size any row.",
+  "Two days to 20 Nov 2026, with the VIX up from 24.56 to 35.89: IG +5bp, HY +29bp, CCC +49bp (FRED). The size of a sharp equity fall with no funding event. Not used to resize any row."
+ ],
+ "spine": [
+  {
+   "id": "S1",
+   "name": "Supply absorbed",
+   "p": 0.28,
+   "p_source": "PM_assumption",
+   "test": "Otherwise. Capex holds, growth holds, and the Fed stops at 4.25% or lower.",
+   "observables": [
+    {
+     "series": "FRED DFEDTARU",
+     "threshold": "4.25 or lower on 2027-05-23, and no earlier test is true"
+    }
+   ],
+   "evidence": [
+    "Oil fell from $110 to $90 in a month and 10-year breakeven inflation is at a three-year low of 2.15% (FRED DCOILWTICO, T10YIE).",
+    "The October SLOOS is near neutral at 1.7% net tightening (FRED DRTSCILM).",
+    "Added 23 Nov, probability unchanged: the 2-year yield fell 20bp last week (Bloomberg, via DEBT SERIOUS, 21 Nov 2026). Funding markets show no stress (second-hand digest, 23 Nov 2026).",
+    "Added 23 Nov, update run, probability unchanged: Alphabet sold a bond in Canada in the week of the fall, so the primary market stayed open (Exec Sum, 23 Nov 2026). Two X accounts describe a sharp equity rebound on 23 Nov. Its stated cause failed a web check. Against: IG widened 5bp and HY 29bp in the two days to 20 Nov (FRED)."
+   ]
+  },
+  {
+   "id": "S2",
+   "name": "Higher rates, supply grind",
+   "p": 0.37,
+   "p_source": "evidence_weighted",
+   "test": "Fourth. The Fed funds upper bound is 4.50% or higher on the horizon date.",
+   "observables": [
+    {
+     "series": "FRED DFEDTARU",
+     "threshold": "4.50 or higher on 2027-05-23"
+    },
+    {
+     "series": "AA to BBB spread ratio (FRED BAMLC0A2CAA / BAMLC0A4CBBB)",
+     "threshold": "above 0.62"
+    }
+   ],
+   "evidence": [
+    "Futures price a December hike at about 95%. The October minutes say almost all participants favour further hikes (CNBC, 18 Nov 2026).",
+    "The 2-year Treasury yields 4.76% against a 4.00% policy ceiling (FRED DGS2, DFEDTARU).",
+    "Goldman forecasts $420bn of hyperscaler IG issuance in 2027. SanCap forecasts up to $450bn.",
+    "Added 23 Nov, probability unchanged: a December hike is still priced near 96%, with two more hikes by mid-2027 (Finimize, 22 Nov 2026, and a second-hand digest, 23 Nov 2026). Against: the Fed has not hiked with the VIX above 30 since 1990 (relayed by Not_Mr Risk, 22 Nov 2026).",
+    "Added 23 Nov, probability unchanged: hyperscalers are about one fifth of a record $1.9tn of 2026 IG issuance (JunkBondInvestor, 22 Nov 2026, and an LSEG count found by web search, 23 Nov 2026).",
+    "Added 23 Nov, update run, probability unchanged: the AA to BBB ratio rose from 0.578 to 0.590 in the two days to 20 Nov (FRED). Against: the VIX closed at 35.89 on 20 Nov (FRED VIXCLS), and no source gives the odds of a December hike after the fall."
+   ]
+  },
+  {
+   "id": "S3",
+   "name": "AI digestion",
+   "p": 0.18,
+   "p_source": "PM_assumption",
+   "test": "Third. The five largest AI spenders guide combined 2027 capex to $900bn or less, or two of the five cut guidance.",
+   "observables": [
+    {
+     "series": "Fourth-quarter earnings guidance, late January to early February 2027",
+     "threshold": "combined 2027 capex of $900bn or less, against a consensus above $1,000bn"
+    }
+   ],
+   "evidence": [
+    "Nvidia lost about half its market value in six weeks. Reuters reported an SEC accounting probe on 20 Nov 2026.",
+    "Tech IG borrowing costs are the highest since 2009 by one report. The 2027 funding gap is put at about $291bn (SanCap, 20 Nov 2026).",
+    "Against: strong Nvidia earnings in November show demand had not yet dropped.",
+    "Added 23 Nov, probability unchanged: none of a $500bn chip-financing pledge has been deployed (WSJ, via DEBT SERIOUS, 21 Nov 2026). Against: a web search on 23 Nov found no 2027 capex cut by any of the five, and a bank forecast of $1.32tn for the five in 2027 dated 8 Nov.",
+    "Added 23 Nov, update run, probability unchanged: one X account reports that Google cut a 2027 chip order by about 20% (@nodiligence, 23 Nov 2026). One source, and a web search did not find it. It is a chip order, not capex guidance. Against: the AA to BBB ratio rose last week, and this scenario needs it to fall."
+   ]
+  },
+  {
+   "id": "S4",
+   "name": "Hard landing",
+   "p": 0.1,
+   "p_source": "PM_assumption",
+   "test": "Second. The manufacturing ISM prints under 50 for two months in a row, or the Sahm rule reaches 0.50.",
+   "observables": [
+    {
+     "series": "ISM manufacturing PMI",
+     "threshold": "under 50 for two consecutive months"
+    },
+    {
+     "series": "Sahm rule (FRED SAHMREALTIME)",
+     "threshold": "0.50 or higher"
+    }
+   ],
+   "evidence": [
+    "Against: the October ISM is 55.5 and rising, after ten months of expansion.",
+    "For: the Fed is hiking into an equity fall of 8% on the S&P 500 and 13% on the Nasdaq.",
+    "Added 23 Nov, update run, probability unchanged: the S&P 500 fell 8.6% in the week to 20 Nov, its largest weekly fall since April 2025 (@NickTimiraos, 20 Nov 2026). No new growth data arrived."
+   ]
+  },
+  {
+   "id": "S5",
+   "name": "Funding accident",
+   "p": 0.07,
+   "p_source": "PM_assumption",
+   "test": "First. A bank or insurer with over $50bn of assets fails or is rescued, or the Fed opens an emergency facility, or the IG primary market shuts for five business days.",
+   "observables": [
+    {
+     "series": "Fed H.4.1 release",
+     "threshold": "a new emergency facility appears"
+    },
+    {
+     "series": "IG primary market calendar",
+     "threshold": "five straight business days with no deals, outside holidays"
+    }
+   ],
+   "evidence": [
+    "CCC spreads are at a three-year high of 1402bp on 20 Nov 2026 (FRED BAMLH0A3HYC). CoreWeave bonds yield about 16% (CNBC, 6 Nov 2026).",
+    "One source reports a force majeure notice on an $18bn data-centre construction loan held by about 20 banks.",
+    "Against: aggregate corporate debt fell from 50.8% to 48.2% of GDP in three years (Fed Z.1).",
+    "Added 23 Nov, probability unchanged: a second source describes the force majeure item as a precautionary lease notice from a tenant to a developer (JunkBondInvestor, 22 Nov 2026). A bank passed on a $300m piece of a data-centre loan at a mid-80s price (Bloomberg, via DEBT SERIOUS, 21 Nov 2026).",
+    "Added 23 Nov, update run, probability unchanged: a second bank met muted demand for a $500m data-centre loan sale, and a $1bn public ABS leg was delayed (Exec Sum, 23 Nov 2026, second-hand). Against: no source reports funding stress, a bank failure or a shut primary market."
+   ]
+  }
+ ],
+ "relations": [
+  {
+   "name": "HY minus IG (bp)",
+   "a": "HY",
+   "b": "IG",
+   "op": "diff"
+  },
+  {
+   "name": "HY to IG ratio",
+   "a": "HY",
+   "b": "IG",
+   "op": "ratio"
+  },
+  {
+   "name": "BB minus BBB (bp)",
+   "a": "HY.BB",
+   "b": "IG.BBB",
+   "op": "diff"
+  },
+  {
+   "name": "CCC minus BB (bp)",
+   "a": "HY.CCC",
+   "b": "HY.BB",
+   "op": "diff"
+  },
+  {
+   "name": "A minus AA (bp)",
+   "a": "IG.A",
+   "b": "IG.AA",
+   "op": "diff"
+  },
+  {
+   "name": "AA to BBB ratio (price of AI supply)",
+   "a": "IG.AA",
+   "b": "IG.BBB",
+   "op": "ratio"
+  }
+ ],
+ "rows": [
+  {
+   "id": "IG",
+   "level": "asset_class",
+   "axis": "ICE BofA US Corporate OAS (FRED BAMLC0A0CM)",
+   "driver": "Hyperscaler supply, the Fed path, growth.",
+   "now": 98,
+   "spread_duration": 6.6,
+   "recon_tol_bp": 5,
+   "scenarios": [
+    {
+     "name": "Supply absorbed",
+     "from": {
+      "S1": -12
+     },
+     "why": "Rate volatility falls. Yield buyers take the January supply without extra concession."
+    },
+    {
+     "name": "Higher rates, supply grind",
+     "from": {
+      "S2": 14
+     },
+     "why": "The Fed keeps hiking. Hyperscaler issuance runs above the 2026 pace. Widening starts in the top ratings."
+    },
+    {
+     "name": "AI digestion",
+     "from": {
+      "S3": 18
+     },
+     "why": "Less hyperscaler supply helps the top tier. BBB names and lenders to the build-out widen."
+    },
+    {
+     "name": "Hard landing",
+     "from": {
+      "S4": 56
+     },
+     "why": "Earnings and ratings fall. Cyclical sectors lead."
+    },
+    {
+     "name": "Funding accident",
+     "from": {
+      "S5": 116
+     },
+     "why": "Forced liquidation. Financials lead."
+    }
+   ]
+  },
+  {
+   "id": "HY",
+   "level": "asset_class",
+   "axis": "ICE BofA US High Yield OAS (FRED BAMLH0A0HYM2)",
+   "driver": "Default expectations, refinancing access, equity volatility.",
+   "now": 376,
+   "spread_duration": 3.1,
+   "recon_tol_bp": 25,
+   "scenarios": [
+    {
+     "name": "Supply absorbed",
+     "from": {
+      "S1": -52
+     },
+     "why": "Equity volatility fades. Stress stays inside a few CCC names."
+    },
+    {
+     "name": "Higher rates, supply grind",
+     "from": {
+      "S2": 18
+     },
+     "why": "Coupons reset higher. Income absorbs most of it. BB feels the rate move."
+    },
+    {
+     "name": "AI digestion",
+     "from": {
+      "S3": 108
+     },
+     "why": "GPU-cloud and data-centre borrowers reprice. It spreads to suppliers and power producers."
+    },
+    {
+     "name": "Hard landing",
+     "from": {
+      "S4": 248
+     },
+     "why": "Default expectations rise across cyclical sectors."
+    },
+    {
+     "name": "Funding accident",
+     "from": {
+      "S5": 498
+     },
+     "why": "The primary market closes. CCC borrowers cannot refinance."
+    }
+   ]
+  },
+  {
+   "id": "IG.AA",
+   "level": "rating",
+   "parent": "IG",
+   "group": "rating",
+   "weight": 0.12,
+   "axis": "ICE BofA AA US Corporate OAS (FRED BAMLC0A2CAA)",
+   "driver": "Hyperscaler supply. Most large AI issuers are rated AA or AAA.",
+   "scenarios": [
+    {
+     "name": "Supply absorbed",
+     "from": {
+      "S1": -8
+     },
+     "why": "Concessions on hyperscaler bonds shrink a little."
+    },
+    {
+     "name": "Higher rates, supply grind",
+     "from": {
+      "S2": 16
+     },
+     "why": "The supply lands here."
+    },
+    {
+     "name": "AI digestion",
+     "from": {
+      "S3": -2
+     },
+     "why": "Less supply offsets weaker sentiment."
+    },
+    {
+     "name": "Hard landing",
+     "from": {
+      "S4": 30
+     },
+     "why": "High quality widens least."
+    },
+    {
+     "name": "Funding accident",
+     "from": {
+      "S5": 75
+     },
+     "why": "High quality widens least, but supply overhang remains."
+    }
+   ],
+   "now": 72
+  },
+  {
+   "id": "IG.A",
+   "level": "rating",
+   "parent": "IG",
+   "group": "rating",
+   "weight": 0.43,
+   "axis": "ICE BofA Single-A US Corporate OAS (FRED BAMLC0A3CA)",
+   "driver": "Banks dominate this tier.",
+   "scenarios": [
+    {
+     "name": "Supply absorbed",
+     "from": {
+      "S1": -10
+     },
+     "why": "Moves with the index."
+    },
+    {
+     "name": "Higher rates, supply grind",
+     "from": {
+      "S2": 12
+     },
+     "why": "Banks gain from higher rates and issue less than tech."
+    },
+    {
+     "name": "AI digestion",
+     "from": {
+      "S3": 12
+     },
+     "why": "Questions on bank lending to the build-out."
+    },
+    {
+     "name": "Hard landing",
+     "from": {
+      "S4": 45
+     },
+     "why": "Loan losses rise."
+    },
+    {
+     "name": "Funding accident",
+     "from": {
+      "S5": 100
+     },
+     "why": "Banks sit at the centre of funding stress."
+    }
+   ],
+   "now": 81
+  },
+  {
+   "id": "IG.BBB",
+   "level": "rating",
+   "parent": "IG",
+   "group": "rating",
+   "weight": 0.45,
+   "axis": "ICE BofA BBB US Corporate OAS (FRED BAMLC0A4CBBB)",
+   "driver": "Downgrade risk and cyclical exposure.",
+   "scenarios": [
+    {
+     "name": "Supply absorbed",
+     "from": {
+      "S1": -15
+     },
+     "why": "Highest beta in a rally."
+    },
+    {
+     "name": "Higher rates, supply grind",
+     "from": {
+      "S2": 14
+     },
+     "why": "Moves with the index."
+    },
+    {
+     "name": "AI digestion",
+     "from": {
+      "S3": 26
+     },
+     "why": "Lower-rated AI borrowers and cyclicals carry the downgrade risk."
+    },
+    {
+     "name": "Hard landing",
+     "from": {
+      "S4": 75
+     },
+     "why": "Fallen-angel fear returns."
+    },
+    {
+     "name": "Funding accident",
+     "from": {
+      "S5": 145
+     },
+     "why": "Forced sellers of downgraded bonds."
+    }
+   ],
+   "now": 122
+  },
+  {
+   "id": "HY.BB",
+   "level": "rating",
+   "parent": "HY",
+   "group": "rating",
+   "weight": 0.52,
+   "axis": "ICE BofA BB US High Yield OAS (FRED BAMLH0A1HYBB)",
+   "driver": "Rates and crossover demand.",
+   "scenarios": [
+    {
+     "name": "Supply absorbed",
+     "from": {
+      "S1": -30
+     },
+     "why": "Modest rally from already tight levels."
+    },
+    {
+     "name": "Higher rates, supply grind",
+     "from": {
+      "S2": 18
+     },
+     "why": "Longest duration in HY. Feels the rate move."
+    },
+    {
+     "name": "AI digestion",
+     "from": {
+      "S3": 55
+     },
+     "why": "Limited direct AI exposure."
+    },
+    {
+     "name": "Hard landing",
+     "from": {
+      "S4": 150
+     },
+     "why": "Downgrades from IG add supply."
+    },
+    {
+     "name": "Funding accident",
+     "from": {
+      "S5": 310
+     },
+     "why": "Wide, but refinancing stays possible."
+    }
+   ],
+   "now": 229
+  },
+  {
+   "id": "HY.B",
+   "level": "rating",
+   "parent": "HY",
+   "group": "rating",
+   "weight": 0.36,
+   "axis": "ICE BofA Single-B US High Yield OAS (FRED BAMLH0A2HYB)",
+   "driver": "Refinancing cost and earnings.",
+   "scenarios": [
+    {
+     "name": "Supply absorbed",
+     "from": {
+      "S1": -55
+     },
+     "why": "Moves with the index."
+    },
+    {
+     "name": "Higher rates, supply grind",
+     "from": {
+      "S2": 20
+     },
+     "why": "Higher coupons at refinancing."
+    },
+    {
+     "name": "AI digestion",
+     "from": {
+      "S3": 110
+     },
+     "why": "Holds most of the leveraged tech and supplier names."
+    },
+    {
+     "name": "Hard landing",
+     "from": {
+      "S4": 270
+     },
+     "why": "Earnings fall against high interest cost."
+    },
+    {
+     "name": "Funding accident",
+     "from": {
+      "S5": 540
+     },
+     "why": "Refinancing window shuts."
+    }
+   ],
+   "now": 408
+  },
+  {
+   "id": "HY.CCC",
+   "level": "rating",
+   "parent": "HY",
+   "group": "rating",
+   "weight": 0.12,
+   "axis": "ICE BofA CCC and lower US High Yield OAS (FRED BAMLH0A3HYC)",
+   "driver": "A few distressed issuers. Four names carry about 30% of the spread (Vanguard, 10 Nov 2026).",
+   "scenarios": [
+    {
+     "name": "Supply absorbed",
+     "from": {
+      "S1": -150
+     },
+     "why": "Distressed names bounce, but restructurings continue."
+    },
+    {
+     "name": "Higher rates, supply grind",
+     "from": {
+      "S2": 30
+     },
+     "why": "Already priced for distress. Rates add little."
+    },
+    {
+     "name": "AI digestion",
+     "from": {
+      "S3": 340
+     },
+     "why": "A large restructuring in AI-linked debt."
+    },
+    {
+     "name": "Hard landing",
+     "from": {
+      "S4": 620
+     },
+     "why": "Defaults rise broadly."
+    },
+    {
+     "name": "Funding accident",
+     "from": {
+      "S5": 1200
+     },
+     "why": "No refinancing at any price."
+    }
+   ],
+   "now": 1402
+  },
+  {
+   "id": "IG.Banking",
+   "level": "sector",
+   "parent": "IG",
+   "group": "sector",
+   "weight": 0.22,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Funding markets, the curve, loan losses, lending to non-bank funds.",
+   "scenarios": [
+    {
+     "name": "Calm funding",
+     "from": {
+      "S1": -14
+     },
+     "why": "Bank supply after January earnings clears easily."
+    },
+    {
+     "name": "Haven from tech supply",
+     "from": {
+      "S2": 8
+     },
+     "why": "Higher rates lift margins. Bank net supply is lower than tech supply."
+    },
+    {
+     "name": "AI loan-book questions",
+     "from": {
+      "S3": 22
+     },
+     "why": "Investors ask about construction loans and lending to private-credit funds."
+    },
+    {
+     "name": "Credit-cost cycle",
+     "from": {
+      "S4": 60
+     },
+     "why": "Loan losses rise. Banks widen a little more than the index."
+    },
+    {
+     "name": "Systemic stress",
+     "from": {
+      "S5": 150
+     },
+     "why": "Banks sit at the centre of any funding accident."
+    }
+   ]
+  },
+  {
+   "id": "IG.Insurance and other financials",
+   "level": "sector",
+   "parent": "IG",
+   "group": "sector",
+   "weight": 0.09,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Private-credit holdings and lending-fund asset quality.",
+   "scenarios": [
+    {
+     "name": "Calm",
+     "from": {
+      "S1": -14
+     },
+     "why": "Higher yields help life insurers reinvest."
+    },
+    {
+     "name": "Yield tailwind",
+     "from": {
+      "S2": 12
+     },
+     "why": "Insurers are natural buyers of the new supply."
+    },
+    {
+     "name": "Private-credit marks contained",
+     "from": {
+      "S3": {
+       "frac": 0.65,
+       "dx": 20
+      }
+     },
+     "why": "Insurers hold AI debt, but marks move slowly.",
+     "observable": "Rated lending funds report non-accruals under 3% of assets"
+    },
+    {
+     "name": "Lending-fund and insurer scrutiny",
+     "from": {
+      "S3": {
+       "frac": 0.35,
+       "dx": 50
+      }
+     },
+     "why": "Lending funds report bad loans. Insurers disclose data-centre holdings.",
+     "observable": "Non-accruals above 3% at two large rated lending funds, or a fund limits withdrawals"
+    },
+    {
+     "name": "Macro stress",
+     "from": {
+      "S4": 70,
+      "S5": 170
+     },
+     "why": "Asset managers and insurers carry the private-credit link in a downturn."
+    }
+   ]
+  },
+  {
+   "id": "IG.REITs",
+   "level": "sector",
+   "parent": "IG",
+   "group": "sector",
+   "weight": 0.03,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Treasury yields and data-centre development funding.",
+   "scenarios": [
+    {
+     "name": "Rates relief",
+     "from": {
+      "S1": -14
+     },
+     "why": "Lower rate volatility helps a rate-sensitive sector."
+    },
+    {
+     "name": "Rate drag",
+     "from": {
+      "S2": 18
+     },
+     "why": "Data-centre REITs need funding while yields stay near 5%."
+    },
+    {
+     "name": "Leasing slowdown",
+     "from": {
+      "S3": 30
+     },
+     "why": "Data-centre leasing slows after capex cuts."
+    },
+    {
+     "name": "Property downturn",
+     "from": {
+      "S4": 70
+     },
+     "why": "Property values fall with growth."
+    },
+    {
+     "name": "Funding stress",
+     "from": {
+      "S5": 150
+     },
+     "why": "Development funding stops."
+    }
+   ]
+  },
+  {
+   "id": "IG.Technology",
+   "level": "sector",
+   "parent": "IG",
+   "group": "sector",
+   "weight": 0.11,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Net bond supply and capex against cash flow. About 20bp wide of the index on 2 Nov 2026 by one report.",
+   "scenarios": [
+    {
+     "name": "Supply absorbed",
+     "from": {
+      "S1": -14
+     },
+     "why": "Buyers accept current concessions. The premium to the index holds."
+    },
+    {
+     "name": "Supply grind",
+     "from": {
+      "S2": 28
+     },
+     "why": "2027 issuance near $420bn to $450bn meets a tired buyer base."
+    },
+    {
+     "name": "Capex cut, balance sheets protected",
+     "from": {
+      "S3": {
+       "frac": 0.6,
+       "dx": -6
+      }
+     },
+     "why": "Less borrowing. Bondholders gain what shareholders lose.",
+     "observable": "Hyperscaler bond issuance in Q1 2027 under $60bn, and no rating action"
+    },
+    {
+     "name": "Capex cut with a credit event",
+     "from": {
+      "S3": {
+       "frac": 0.4,
+       "dx": 45
+      }
+     },
+     "why": "A lower-rated AI borrower loses its IG rating, or the accounting probe widens.",
+     "observable": "A rating agency moves a large AI borrower to negative outlook at BBB-, or a second issuer discloses a probe"
+    },
+    {
+     "name": "Macro stress",
+     "from": {
+      "S4": 50,
+      "S5": 125
+     },
+     "why": "Tech no longer acts as the safe sector, because it now carries the debt."
+    }
+   ]
+  },
+  {
+   "id": "IG.Communications",
+   "level": "sector",
+   "parent": "IG",
+   "group": "sector",
+   "weight": 0.08,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Leverage and demand for long bonds.",
+   "scenarios": [
+    {
+     "name": "Calm",
+     "from": {
+      "S1": -13
+     },
+     "why": "Moves with the index."
+    },
+    {
+     "name": "Long-bond competition",
+     "from": {
+      "S2": 20
+     },
+     "why": "Long-dated BBB telecom debt competes with hyperscaler long bonds."
+    },
+    {
+     "name": "Defensive cash flows",
+     "from": {
+      "S3": 16
+     },
+     "why": "Subscription revenue holds."
+    },
+    {
+     "name": "Leverage worry",
+     "from": {
+      "S4": 60
+     },
+     "why": "High leverage meets weaker revenue."
+    },
+    {
+     "name": "Stress",
+     "from": {
+      "S5": 115
+     },
+     "why": "Large capital structures widen with the index."
+    }
+   ]
+  },
+  {
+   "id": "IG.Consumer cyclical",
+   "level": "sector",
+   "parent": "IG",
+   "group": "sector",
+   "weight": 0.07,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Consumer spending and rates on car and home loans.",
+   "scenarios": [
+    {
+     "name": "Consumer holds",
+     "from": {
+      "S1": -14
+     },
+     "why": "Lower oil helps spending."
+    },
+    {
+     "name": "Rate squeeze",
+     "from": {
+      "S2": 18
+     },
+     "why": "Car finance and housing feel 5% Treasury yields."
+    },
+    {
+     "name": "Wealth effect",
+     "from": {
+      "S3": 20
+     },
+     "why": "A deeper equity fall trims high-end spending."
+    },
+    {
+     "name": "Consumer recession",
+     "from": {
+      "S4": 85
+     },
+     "why": "Autos and retail lead. Fallen-angel risk rises."
+    },
+    {
+     "name": "Stress",
+     "from": {
+      "S5": 135
+     },
+     "why": "Cyclical names widen more than the index."
+    }
+   ]
+  },
+  {
+   "id": "IG.Consumer non-cyclical",
+   "level": "sector",
+   "parent": "IG",
+   "group": "sector",
+   "weight": 0.14,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Debt-funded mergers and drug-price policy. No direct AI link.",
+   "scenarios": [
+    {
+     "name": "Lags the rally",
+     "from": {
+      "S1": -10
+     },
+     "why": "Defensive sectors gain least when risk appetite returns."
+    },
+    {
+     "name": "Defensive haven",
+     "from": {
+      "S2": 10,
+      "S3": 8
+     },
+     "why": "Stable cash flows. The sector does not tell these two scenarios apart."
+    },
+    {
+     "name": "Mild widening",
+     "from": {
+      "S4": 35
+     },
+     "why": "Demand for staples and medicine holds in a downturn."
+    },
+    {
+     "name": "Stress, still defensive",
+     "from": {
+      "S5": 75
+     },
+     "why": "Widens least of all IG sectors."
+    }
+   ]
+  },
+  {
+   "id": "IG.Energy",
+   "level": "sector",
+   "parent": "IG",
+   "group": "sector",
+   "weight": 0.07,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Oil and gas prices. Power demand from data centres.",
+   "scenarios": [
+    {
+     "name": "Oil steady",
+     "from": {
+      "S1": -14
+     },
+     "why": "Oil near $90 keeps cash flow strong."
+    },
+    {
+     "name": "Inflation hedge",
+     "from": {
+      "S2": 8
+     },
+     "why": "Firm oil goes with firm inflation. Net supply is low."
+    },
+    {
+     "name": "Power-demand rethink",
+     "from": {
+      "S3": 20
+     },
+     "why": "Gas pipeline names priced for data-centre demand give some back."
+    },
+    {
+     "name": "Oil slump",
+     "from": {
+      "S4": 85
+     },
+     "why": "A demand fall takes oil under $65."
+    },
+    {
+     "name": "Stress",
+     "from": {
+      "S5": 140
+     },
+     "why": "High beta to a global growth shock."
+    }
+   ]
+  },
+  {
+   "id": "IG.Industrials",
+   "level": "sector",
+   "parent": "IG",
+   "group": "sector",
+   "weight": 0.1,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Manufacturing surveys and capital-spending orders. Covers basic industry, capital goods and transport.",
+   "scenarios": [
+    {
+     "name": "Orders hold",
+     "from": {
+      "S1": -13
+     },
+     "why": "ISM stays above 50."
+    },
+    {
+     "name": "Steady",
+     "from": {
+      "S2": 10
+     },
+     "why": "Strong factories offset higher rates."
+    },
+    {
+     "name": "Equipment orders cut",
+     "from": {
+      "S3": 24
+     },
+     "why": "Makers of power and cooling equipment lose data-centre orders."
+    },
+    {
+     "name": "Cyclical downturn",
+     "from": {
+      "S4": 75
+     },
+     "why": "Orders fall with the ISM."
+    },
+    {
+     "name": "Stress",
+     "from": {
+      "S5": 115
+     },
+     "why": "Cyclical names widen with the index."
+    }
+   ]
+  },
+  {
+   "id": "IG.Utilities",
+   "level": "sector",
+   "parent": "IG",
+   "group": "sector",
+   "weight": 0.09,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Capex-funded supply, long-bond rates and load forecasts.",
+   "scenarios": [
+    {
+     "name": "Calm",
+     "from": {
+      "S1": -11
+     },
+     "why": "Heavy utility supply limits the rally."
+    },
+    {
+     "name": "Capex supply",
+     "from": {
+      "S2": 20
+     },
+     "why": "Utilities borrow heavily for grid and generation. Long bonds feel rates."
+    },
+    {
+     "name": "Load-growth rethink",
+     "from": {
+      "S3": 10
+     },
+     "why": "Lower load forecasts mean less borrowing. Regulated cash flow holds."
+    },
+    {
+     "name": "Defensive",
+     "from": {
+      "S4": 40
+     },
+     "why": "Regulated revenue holds in a downturn."
+    },
+    {
+     "name": "Stress, still defensive",
+     "from": {
+      "S5": 85
+     },
+     "why": "Widens less than the index."
+    }
+   ]
+  },
+  {
+   "id": "HY.Energy",
+   "level": "sector",
+   "parent": "HY",
+   "group": "sector",
+   "weight": 0.11,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Oil and gas prices.",
+   "scenarios": [
+    {
+     "name": "Oil steady",
+     "from": {
+      "S1": -45
+     },
+     "why": "Balance sheets are strong after a year of high oil."
+    },
+    {
+     "name": "Inflation hedge",
+     "from": {
+      "S2": 5
+     },
+     "why": "Firm oil protects cash flow."
+    },
+    {
+     "name": "Low AI link",
+     "from": {
+      "S3": 70
+     },
+     "why": "Only gas and power names are exposed."
+    },
+    {
+     "name": "Oil slump",
+     "from": {
+      "S4": 300
+     },
+     "why": "Oil under $65 in a demand slump."
+    },
+    {
+     "name": "Stress",
+     "from": {
+      "S5": 560
+     },
+     "why": "High beta to a growth shock."
+    }
+   ]
+  },
+  {
+   "id": "HY.Communications",
+   "level": "sector",
+   "parent": "HY",
+   "group": "sector",
+   "weight": 0.13,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Leverage, declining legacy revenue, debt exchanges. About a quarter of the CCC index.",
+   "scenarios": [
+    {
+     "name": "Relief",
+     "from": {
+      "S1": -70
+     },
+     "why": "Distressed capital structures bounce the most."
+    },
+    {
+     "name": "Refinancing cost",
+     "from": {
+      "S2": 30
+     },
+     "why": "Large maturities meet higher coupons."
+    },
+    {
+     "name": "Fibre story fades",
+     "from": {
+      "S3": 110
+     },
+     "why": "Fibre builders lose the AI traffic story."
+    },
+    {
+     "name": "Restructuring wave",
+     "from": {
+      "S4": 270
+     },
+     "why": "More debt exchanges and defaults."
+    },
+    {
+     "name": "Stress",
+     "from": {
+      "S5": 510
+     },
+     "why": "No market access for leveraged names."
+    }
+   ]
+  },
+  {
+   "id": "HY.Technology",
+   "level": "sector",
+   "parent": "HY",
+   "group": "sector",
+   "weight": 0.08,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Refinancing cost and customer contracts at GPU-cloud and software borrowers.",
+   "scenarios": [
+    {
+     "name": "Funding reopens",
+     "from": {
+      "S1": -110
+     },
+     "why": "The most beaten-down sector bounces the most."
+    },
+    {
+     "name": "Costly funding, no default",
+     "from": {
+      "S2": 50
+     },
+     "why": "GPU-cloud borrowers refinance at 12% to 16%. Nobody defaults."
+    },
+    {
+     "name": "GPU-cloud restructuring",
+     "from": {
+      "S3": {
+       "frac": 0.6,
+       "dx": 380
+      }
+     },
+     "why": "A large GPU-cloud borrower restructures after customers cut orders.",
+     "observable": "A GPU-cloud borrower with over $10bn of debt misses a payment or launches a debt exchange"
+    },
+    {
+     "name": "Contracts honoured",
+     "from": {
+      "S3": {
+       "frac": 0.4,
+       "dx": 160
+      }
+     },
+     "why": "Take-or-pay contracts with investment-grade customers hold.",
+     "observable": "Large customers reaffirm contracted spending in writing"
+    },
+    {
+     "name": "Macro stress",
+     "from": {
+      "S4": 360,
+      "S5": 850
+     },
+     "why": "Leveraged software and GPU-cloud debt has the least cushion."
+    }
+   ]
+  },
+  {
+   "id": "HY.Healthcare",
+   "level": "sector",
+   "parent": "HY",
+   "group": "sector",
+   "weight": 0.08,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Labour cost, government payment policy, floating-rate debt.",
+   "scenarios": [
+    {
+     "name": "Calm",
+     "from": {
+      "S1": -50
+     },
+     "why": "Moves with the index."
+    },
+    {
+     "name": "Leverage and rates",
+     "from": {
+      "S2": 30
+     },
+     "why": "High leverage meets higher rates."
+    },
+    {
+     "name": "No AI link",
+     "from": {
+      "S3": 60
+     },
+     "why": "Widens only with the index."
+    },
+    {
+     "name": "Defensive demand",
+     "from": {
+      "S4": 170
+     },
+     "why": "Demand for care holds."
+    },
+    {
+     "name": "Stress, still defensive",
+     "from": {
+      "S5": 400
+     },
+     "why": "Widens less than the index."
+    }
+   ]
+  },
+  {
+   "id": "HY.Consumer cyclical",
+   "level": "sector",
+   "parent": "HY",
+   "group": "sector",
+   "weight": 0.2,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Consumer spending, fuel cost, equity wealth. Covers retail, autos, leisure, gaming, airlines.",
+   "scenarios": [
+    {
+     "name": "Consumer holds",
+     "from": {
+      "S1": -60
+     },
+     "why": "Lower fuel cost helps travel and leisure."
+    },
+    {
+     "name": "Rate squeeze",
+     "from": {
+      "S2": 22
+     },
+     "why": "Higher rates trim big-ticket spending."
+    },
+    {
+     "name": "Wealth effect",
+     "from": {
+      "S3": 85
+     },
+     "why": "A deeper equity fall trims leisure spending."
+    },
+    {
+     "name": "Consumer recession",
+     "from": {
+      "S4": 290
+     },
+     "why": "The largest HY sector leads the widening."
+    },
+    {
+     "name": "Stress",
+     "from": {
+      "S5": 500
+     },
+     "why": "Cyclical names lose market access."
+    }
+   ]
+  },
+  {
+   "id": "HY.Consumer non-cyclical and services",
+   "level": "sector",
+   "parent": "HY",
+   "group": "sector",
+   "weight": 0.11,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Input costs and contract revenue.",
+   "scenarios": [
+    {
+     "name": "Calm",
+     "from": {
+      "S1": -45
+     },
+     "why": "Moves a little less than the index."
+    },
+    {
+     "name": "Steady",
+     "from": {
+      "S2": 15
+     },
+     "why": "Stable revenue."
+    },
+    {
+     "name": "Mild contagion",
+     "from": {
+      "S3": 65
+     },
+     "why": "No direct AI link."
+    },
+    {
+     "name": "Downturn, defensive",
+     "from": {
+      "S4": 180
+     },
+     "why": "Staples and services hold up."
+    },
+    {
+     "name": "Stress",
+     "from": {
+      "S5": 410
+     },
+     "why": "Widens less than the index."
+    }
+   ]
+  },
+  {
+   "id": "HY.Basic industry and capital goods",
+   "level": "sector",
+   "parent": "HY",
+   "group": "sector",
+   "weight": 0.15,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Manufacturing surveys, construction, commodity prices.",
+   "scenarios": [
+    {
+     "name": "Orders hold",
+     "from": {
+      "S1": -55
+     },
+     "why": "ISM stays above 50."
+    },
+    {
+     "name": "Steady",
+     "from": {
+      "S2": 15
+     },
+     "why": "Strong factories offset higher rates."
+    },
+    {
+     "name": "Build-out suppliers hit",
+     "from": {
+      "S3": 105
+     },
+     "why": "Building-material and electrical suppliers lose data-centre work."
+    },
+    {
+     "name": "Cyclical downturn",
+     "from": {
+      "S4": 280
+     },
+     "why": "Orders fall with the ISM."
+    },
+    {
+     "name": "Stress",
+     "from": {
+      "S5": 490
+     },
+     "why": "Cyclical names widen with the index."
+    }
+   ]
+  },
+  {
+   "id": "HY.Financial services",
+   "level": "sector",
+   "parent": "HY",
+   "group": "sector",
+   "weight": 0.06,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Market funding access and asset marks at non-bank lenders.",
+   "scenarios": [
+    {
+     "name": "Funding open",
+     "from": {
+      "S1": -60
+     },
+     "why": "Non-bank lenders refinance easily."
+    },
+    {
+     "name": "Higher funding cost",
+     "from": {
+      "S2": 25
+     },
+     "why": "Funding cost rises faster than loan yields."
+    },
+    {
+     "name": "Private-credit marks",
+     "from": {
+      "S3": 130
+     },
+     "why": "Lenders against GPUs and data centres mark loans down."
+    },
+    {
+     "name": "Loss cycle",
+     "from": {
+      "S4": 270
+     },
+     "why": "Consumer and business loan losses rise."
+    },
+    {
+     "name": "Funding shut",
+     "from": {
+      "S5": 680
+     },
+     "why": "Non-bank lenders depend on market funding."
+    }
+   ]
+  },
+  {
+   "id": "HY.Real estate and homebuilders",
+   "level": "sector",
+   "parent": "HY",
+   "group": "sector",
+   "weight": 0.05,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Mortgage rates and construction loans on data-centre projects.",
+   "scenarios": [
+    {
+     "name": "Rates relief",
+     "from": {
+      "S1": -55
+     },
+     "why": "Lower rate volatility helps housing."
+    },
+    {
+     "name": "Mortgage-rate drag",
+     "from": {
+      "S2": 40
+     },
+     "why": "A 5% Treasury yield keeps mortgage rates high."
+    },
+    {
+     "name": "Construction loans extended",
+     "from": {
+      "S3": {
+       "frac": 0.5,
+       "dx": 90
+      }
+     },
+     "why": "Banks extend terms and projects finish late.",
+     "observable": "Lenders amend and extend the large data-centre construction loans"
+    },
+    {
+     "name": "Projects halted",
+     "from": {
+      "S3": {
+       "frac": 0.5,
+       "dx": 210
+      }
+     },
+     "why": "Lenders take over unfinished data-centre projects.",
+     "observable": "A lender group declares default on a data-centre construction loan above $5bn"
+    },
+    {
+     "name": "Macro stress",
+     "from": {
+      "S4": 270,
+      "S5": 580
+     },
+     "why": "Housing and development both stop."
+    }
+   ]
+  },
+  {
+   "id": "HY.Utilities and power",
+   "level": "sector",
+   "parent": "HY",
+   "group": "sector",
+   "weight": 0.03,
+   "axis": "Sector OAS change against today. No free level data.",
+   "driver": "Power prices and contracted demand from data centres.",
+   "scenarios": [
+    {
+     "name": "Power demand firm",
+     "from": {
+      "S1": -45
+     },
+     "why": "Power prices stay high."
+    },
+    {
+     "name": "Pass-through",
+     "from": {
+      "S2": 10
+     },
+     "why": "Power prices rise with inflation."
+    },
+    {
+     "name": "Load-growth rethink",
+     "from": {
+      "S3": 170
+     },
+     "why": "Power producers priced for AI demand reprice."
+    },
+    {
+     "name": "Defensive",
+     "from": {
+      "S4": 200
+     },
+     "why": "Power demand is stable in a downturn."
+    },
+    {
+     "name": "Stress",
+     "from": {
+      "S5": 430
+     },
+     "why": "Widens less than the index."
+    }
+   ]
+  }
+ ]
+}
