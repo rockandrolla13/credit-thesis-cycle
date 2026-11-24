@@ -1,0 +1,17 @@
+[claude-code:unrecognized_model] {"model":"claude-fable-5-2","query_source":"sdk"}
+DONE
+
+Top-ranked theme: T1. A volatility shock and wider spreads meet a Fed that still leans toward hiking and banks that have started to tighten.
+
+- **Check:** `check_themes.py` printed `PASS 3 themes, 6 observations, 10 blind spots` on the first run.
+- **Status:** every theme is `born`. There is no `themes.json` in `runs/2026-11-22` and no ledger, so this is the first run.
+- **Not promoted:** Europe has no theme. All European items come from one X account, so they stay as observations.
+- **Memory:** I did not call OMEGA or GBrain, and I stored no decision. The run rules say to write only in the run directory and to keep step 2 pricing out.
+
+Files are in `/home/ak/.local/share/credit-scenario-grid/runs/2026-11-23`:
+- `evidence/streams.md`
+- `fresh_themes.md`
+- `themes.json`
+- `themes.md`
+
+Next: open `themes.md` and read the three ranked themes.

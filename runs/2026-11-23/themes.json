@@ -1,0 +1,180 @@
+{
+  "as_of": "2026-11-23",
+  "universe": "US and European corporate credit",
+  "lenses": [
+    {
+      "id": "macro",
+      "question": "Does the borrowing in this universe pay for itself, and where does leverage sit that the totals do not show?",
+      "series": [
+        {"name": "Capex against operating cash flow of five large AI builders, calendar 2026 estimate (van Nieuwerburgh sec03, Figure 1)", "level": "$800.5bn against $707.1bn", "date": "2026-12-31", "one_month_change": "not a monthly series"},
+        {"name": "Hyperscaler off-balance sheet commitments against reported debt (BIS sec02, citing Moody's)", "level": "commitments exceed reported debt", "date": "2026-10-27", "one_month_change": "not given"},
+        {"name": "DRTSCILM, net share of banks tightening standards for large firms (readings.json)", "level": "1.7", "date": "2026-10-01", "one_month_change": "0.0 in the July survey"}
+      ],
+      "method": {"rule": "Productive-credit test: ask whether the borrowed money generates enough income to service the debt, and do not read only the aggregate debt chart", "skill": "dalio-big-debt-crises", "chapter": "/home/ak/.agents/skills/dalio-big-debt-crises/chapters/ch01-credit-debt-and-the-big-debt-cycle-template.md"},
+      "finding": "The largest borrowers of this cycle now spend more on capex than they earn in operating cash, and the added leverage sits in vehicles, leases, guarantees and bank loans that company balance sheets do not show.",
+      "confidence": "supported with a caveat",
+      "confidence_reason": "Two chapters agree (van-nieuwerburgh-financing-ai-buildout sec03 and bis-building-ai-on-credit sec02), but their numbers are estimates from October 2026. The run holds no revenue or interest-cover series, so the test itself has no answer. The finding covers the US AI build only.",
+      "no_data": "No revenue, interest-cover or loan-to-value series in this run. No European balance-sheet data."
+    },
+    {
+      "id": "cycle",
+      "question": "Which stage are we in, is it secular or cyclical, and who outperforms at this stage?",
+      "series": [
+        {"name": "DFEDTARU, Fed policy ceiling", "level": "4.00%", "date": "2026-11-23", "one_month_change": "unchanged from 4.00%"},
+        {"name": "DRTSCILM, net share of banks tightening standards for large firms", "level": "1.7", "date": "2026-10-01", "one_month_change": "0.0 in the July survey"},
+        {"name": "VIXCLS", "level": "35.89", "date": "2026-11-20", "one_month_change": "from 16.68"},
+        {"name": "BAMLH0A0HYM2, US HY spread", "level": "376bp", "date": "2026-11-20", "one_month_change": "from 327bp"}
+      ],
+      "method": {"rule": "SLOOS rule: hold credit only if the last survey shows looser standards. Also the VIX jump rule and the last-hike pattern from the same chapter", "skill": "willer-trading-global-macro", "chapter": "/home/ak/.agents/skills/willer-trading-global-macro/chapters/ch11-credit.md"},
+      "finding": "On 20 Nov the Fed was still in a hiking stage, bank standards had turned to net tightening, and both Willer credit rules pointed away from spread risk, which marks a late and cyclical stage of a tightening cycle.",
+      "confidence": "supported with a caveat",
+      "confidence_reason": "The run holds no ISM, no housing starts and no one-year volatility z-scores, so the regime rules of willer-trading-global-macro ch03 cannot be applied in full. Willer's numbers are backtests and the library index notes that several rules failed in 2022 to 2023.",
+      "no_data": "No ISM, housing starts, default rate or one-year volatility z-score in readings.json. No European cycle data."
+    },
+    {
+      "id": "policy",
+      "question": "What do monetary, fiscal and regulatory conditions already assume, and what would be a surprise?",
+      "series": [
+        {"name": "DGS2, 2-year Treasury yield, against the Fed policy ceiling of 4.00%", "level": "4.76%", "date": "2026-11-19", "one_month_change": "from 4.79%"},
+        {"name": "T10YIE, 10-year breakeven inflation", "level": "2.15%", "date": "2026-11-20", "one_month_change": "from 2.37%"},
+        {"name": "DCOILWTICO, WTI oil", "level": "89.53", "date": "2026-11-17", "one_month_change": "from 108.21"},
+        {"name": "DGS10, 10-year Treasury yield", "level": "5.04%", "date": "2026-11-19", "one_month_change": "from 5.12%"}
+      ],
+      "method": {"rule": "Only the unexpected change in cash rates matters. A rate path that follows the yield curve does not move returns", "skill": "shahidi-balanced-asset-allocation", "chapter": "/home/ak/.agents/skills/shahidi-balanced-asset-allocation/chapters/ch03-drivers-of-returns.md"},
+      "finding": "Rate markets already hold further Fed hikes, with the 2-year yield at 4.76% against a 4.00% ceiling, while inflation compensation and oil fell over the month.",
+      "confidence": "supported with a caveat",
+      "confidence_reason": "The run holds no market-implied hike path and no Fed statement after the equity fall. The fiscal and regulatory evidence is one statement with no detail (F13). The European policy evidence is one post (F18).",
+      "no_data": "No market-implied policy path, no ECB series, no fiscal data and no text of any rule on data centres."
+    },
+    {
+      "id": "drivers",
+      "question": "What moves cash flow, default rates and supply in this universe now?",
+      "series": [
+        {"name": "BAMLC0A2CAA / BAMLC0A4CBBB, ratio of the AA spread to the BBB spread", "level": "0.59", "date": "2026-11-20", "one_month_change": "from 0.578"},
+        {"name": "BAMLC0A2CAA, AA spread", "level": "72bp, 100th percentile of three years", "date": "2026-11-20", "one_month_change": "from 63bp"},
+        {"name": "BAMLC0A4CBBB, BBB spread", "level": "122bp, 87th percentile of three years", "date": "2026-11-20", "one_month_change": "from 109bp"},
+        {"name": "BAMLH0A3HYC, CCC spread", "level": "1,402bp, the three-year maximum", "date": "2026-11-20", "one_month_change": "from 1,307bp"}
+      ],
+      "method": {"rule": "Aggregation test: a shock to one coarse rating group moves its own price (multiplier 3.94) and does not pass through to the rest of IG (-0.04). Also Willer's endogenous supply rule and the BIS flow share", "skill": "chaudhary-corporate-bond-multipliers", "chapter": "/home/ak/.agents/skills/chaudhary-corporate-bond-multipliers/chapters/sec04-estimation-results.md"},
+      "finding": "Supply is the driver that changed: top-rated issuers kept issuing, the top rating tiers sit at three-year spread highs relative to BBB, and weaker and structured borrowers met buyers who took less paper.",
+      "confidence": "supported with a caveat",
+      "confidence_reason": "The deal items are second-hand and one has no price. Chaudhary measures fund-flow shocks, not issuance, and gives no AA or BBB number. The BIS event study found no significant IG spread move on 18 AI news days (bis-building-ai-on-credit sec03). The run holds no default rate and no cash flow series.",
+      "no_data": "No default rate, issuance calendar, fund-flow or earnings series in this run. No European spread series."
+    }
+  ],
+  "themes": [
+    {
+      "id": "T1",
+      "sentence": "A volatility shock and wider spreads meet a Fed that still leans toward hiking and banks that have started to tighten.",
+      "lenses": ["cycle", "policy"],
+      "mechanism": [
+        {"link": "1. The Fed has not stopped hiking. The 2-year yield is 4.76% against a 4.00% ceiling, and a governor leans toward a December hike.", "source": "F5 (readings.json, 2026-11-19 and 2026-11-23). F16 (@BraxResearch relay, 2026-11-10)"},
+        {"link": "2. Only a rate move beyond the curve changes returns, so a hike on schedule gives no relief and a larger one is a new shock.", "source": "/home/ak/.agents/skills/shahidi-balanced-asset-allocation/chapters/ch03-drivers-of-returns.md"},
+        {"link": "3. Equity volatility jumped while HY spreads were already wider than a month before. The chapter treats that pair as a warning.", "source": "F3 and F4 (readings.json, 2026-11-20). /home/ak/.agents/skills/willer-trading-global-macro/chapters/ch11-credit.md"},
+        {"link": "4. Bank standards turned to net tightening in October. Tighter standards mean less lending, more rollover risk, then defaults.", "source": "F7 (readings.json, 2026-10-01). /home/ak/.agents/skills/willer-trading-global-macro/chapters/ch11-credit.md"},
+        {"link": "5. Around the last hike credit goes sideways with very negative skew, and the weakest tiers carry the rollover risk. The CCC spread is already at its three-year maximum.", "source": "/home/ak/.agents/skills/willer-trading-global-macro/chapters/ch11-credit.md. F3 (readings.json, 2026-11-20)"}
+      ],
+      "winners": ["Floating-rate leveraged loans relative to HY bonds, by Willer's rule for a hiking Fed"],
+      "losers": ["CCC and B issuers with near maturities", "The lowest IG tier in acute stress"],
+      "horizon_type": "cyclical",
+      "facts": ["F3", "F4", "F5", "F7", "F16"],
+      "attention": ["A1", "A5"],
+      "falsifier": {
+        "observable": "The Fed policy ceiling (DFEDTARU) and the US HY spread (BAMLH0A0HYM2) on the verdict date",
+        "threshold": "The theme is false if the ceiling is below 4.00%, which means the hiking stance ended. It is also false if the ceiling is above 4.00% and the HY spread is at or below 327bp, its level of 2026-10-21, which means credit absorbed the hike."
+      },
+      "proposed_measure": "BAMLH0A3HYC minus BAMLH0A1HYBB, the CCC spread less the BB spread, read next to DRTSCILM",
+      "verdict_date": "2027-02-26",
+      "if_wrong": "If this theme is wrong, the equity fall was a one-week event with a company-specific cause (N8) and the rebound of 23 Nov (F22) is the true signal. The Fed then pauses or the market absorbs a hike, bank standards ease in the next survey, and the widening of 20 Nov reverses. The weakest tiers would then recover the most.",
+      "strongest_objection": {
+        "text": "The chapter says equities look ahead only about three months, and that a bear market without a recession does not need a Fed cut to end. After a financial accident the S&P 500 usually recovers all lost ground within three months. sweep.md reports an October ISM of 55.5, far from the recession zone below 45. On that reading the shock is noise in a growing economy and the default chain in links 4 and 5 does not start.",
+        "source": "/home/ak/.agents/skills/willer-trading-global-macro/chapters/ch03-business-cycle.md",
+        "weakens": "Links 3, 4 and 5"
+      },
+      "status": "born",
+      "status_reason": "First run. runs/2026-11-22/themes.json does not exist and the ledger is missing."
+    },
+    {
+      "id": "T2",
+      "sentence": "Financing of the AI build moved from company cash flow to bank loans, vehicles and asset-backed deals, and it now meets banks and buyers who take less of that paper.",
+      "lenses": ["macro", "drivers", "cycle"],
+      "mechanism": [
+        {"link": "1. Capex of five large builders passes their operating cash flow in 2026, so the marginal dollar is outside capital.", "source": "/home/ak/.agents/skills/van-nieuwerburgh-financing-ai-buildout/chapters/sec03-ownership-and-financing.md"},
+        {"link": "2. Shells, power and chips go into project debt, leases and asset-backed structures. Banks give construction loans and lend to the funds that hold the debt.", "source": "/home/ak/.agents/skills/van-nieuwerburgh-financing-ai-buildout/chapters/sec03-ownership-and-financing.md. /home/ak/.agents/skills/bis-building-ai-on-credit/chapters/sec02-financing-structures-risk-allocation.md"},
+        {"link": "3. Supply of this paper depends on buyers. It is pulled when demand is weak.", "source": "/home/ak/.agents/skills/willer-trading-global-macro/chapters/ch11-credit.md"},
+        {"link": "4. Buyers took less. One bank loan sale met muted demand and one public asset-backed sale was delayed. Banks tightened standards in the October survey.", "source": "F8 and F9 (inbox J1 and J2, Exec Sum, 2026-11-23). F7 (readings.json, 2026-10-01)"},
+        {"link": "5. Loss beyond the capped guarantees falls on insurers, funds and their bank lenders, and recognition is slow because the claims are hard to value.", "source": "/home/ak/.agents/skills/bis-building-ai-on-credit/chapters/sec02-financing-structures-risk-allocation.md"}
+      ],
+      "winners": ["Top-rated issuers with direct access to public bond markets"],
+      "losers": ["Unrated and below-IG AI infrastructure borrowers", "Data-centre asset-backed and project debt", "Banks that hold unsold data-centre loans"],
+      "horizon_type": "secular",
+      "facts": ["F7", "F8", "F9"],
+      "attention": ["A2"],
+      "falsifier": {
+        "observable": "DRTSCILM, the net share of banks tightening standards for large firms, in the next survey print",
+        "threshold": "The theme is false if the next print is at or below 0.0, which means banks stopped tightening. It is also false if dated reports show that both the ING loan sale and the Zayo public sale were completed."
+      },
+      "proposed_measure": "DRTSCILM. There is no public series yet for prices of bank sales of data-centre loans",
+      "verdict_date": "2027-02-26",
+      "if_wrong": "If this theme is wrong, the two weak deals were effects of one bad week and not a change in appetite. The $43bn or $44bn chip debt deal that closed in the same week (F11) would then be the better guide. Outside capital keeps funding the build, and the weaker borrowers keep access.",
+      "strongest_objection": {
+        "text": "The chapter says hyperscalers generate large cash flows from non-AI segments, and that most of the debt is long term, so a run on short-term funding appears less likely. Two deals in one week are a small sample, one has no price, and a far larger private deal closed in the same week (F11). The guarantees may hold and the weak demand may pass.",
+        "source": "/home/ak/.agents/skills/bis-building-ai-on-credit/chapters/sec02-financing-structures-risk-allocation.md",
+        "weakens": "Links 4 and 5"
+      },
+      "status": "born",
+      "status_reason": "First run. runs/2026-11-22/themes.json does not exist and the ledger is missing."
+    },
+    {
+      "id": "T3",
+      "sentence": "The top-rated issuers began to fund capex with long bonds, and that supply meets buyers who do not substitute across rating tiers.",
+      "lenses": ["macro", "drivers"],
+      "mechanism": [
+        {"link": "1. The largest IG issuers of this cycle now need outside capital for capex.", "source": "/home/ak/.agents/skills/van-nieuwerburgh-financing-ai-buildout/chapters/sec03-ownership-and-financing.md"},
+        {"link": "2. They issue long-dated bonds. Hyperscaler bonds were about 24% of long corporate issuance in 2026, against about 3% in 2024.", "source": "/home/ak/.agents/skills/bis-building-ai-on-credit/chapters/sec03-spillovers-event-study.md"},
+        {"link": "3. They kept issuing in the week of the equity fall and in a second currency.", "source": "F10 (inbox J5, Exec Sum, 2026-11-23). F19 (@nodiligence, 2026-11-23, one source)"},
+        {"link": "4. Rating groups are weak substitutes. A shock to one coarse rating group moves its own price and does not pass through to the rest of IG.", "source": "/home/ak/.agents/skills/chaudhary-corporate-bond-multipliers/chapters/sec04-estimation-results.md"},
+        {"link": "5. So the supply shows in the top tiers and not in the index. AA and AAA spreads sit at three-year highs while the BBB spread does not, and the AA to BBB ratio is 0.59 against a mean of 0.476.", "source": "F2 (readings.json, 2026-11-20)"}
+      ],
+      "winners": ["BBB issuers outside technology, relative to the top tiers"],
+      "losers": ["AAA and AA technology issuers", "Long-dated high-grade bonds"],
+      "horizon_type": "secular",
+      "facts": ["F2", "F10", "F19"],
+      "attention": ["A4"],
+      "falsifier": {
+        "observable": "The ratio BAMLC0A2CAA / BAMLC0A4CBBB on the verdict date",
+        "threshold": "The theme is false if the ratio is at or below 0.476, its three-year mean, while top-rated issuance continues."
+      },
+      "proposed_measure": "BAMLC0A2CAA / BAMLC0A4CBBB, the ratio of the AA spread to the BBB spread",
+      "verdict_date": "2027-05-21",
+      "if_wrong": "If this theme is wrong, the high ratio reflects something other than supply. It could reflect the sector mix of the AA tier in a technology sell-off, or a general fall in risk appetite that hit all tiers. The ratio would then fall back as equities recover, with no change in issuance.",
+      "strongest_objection": {
+        "text": "The chapter says supply is endogenous to the credit environment and concludes: we typically ignore supply forecasts. The BIS event study agrees on the evidence so far. On 18 AI financing news days the IG spread moved 0.13bp with a standard error of 0.24, which is not significant. Chaudhary also measures fund flows and not issuance, and gives no AA or BBB number.",
+        "source": "/home/ak/.agents/skills/willer-trading-global-macro/chapters/ch11-credit.md",
+        "weakens": "Links 4 and 5"
+      },
+      "status": "born",
+      "status_reason": "First run. runs/2026-11-22/themes.json does not exist and the ledger is missing."
+    }
+  ],
+  "observations": [
+    {"lens": "policy", "text": "Inflation compensation and oil fell over the month while the Fed still leans toward a hike. The 10-year breakeven is 2.15%, the 5th percentile of three years. One lens only.", "source": "F6 (readings.json, 2026-11-20 and 2026-11-17). F16 (@BraxResearch relay, 2026-11-10)"},
+    {"lens": "policy", "text": "The US president announced a tax on US firms that build data centres abroad. He gave no detail, so nothing can be tested.", "source": "F13 (inbox J7, The Deep View and TLDR Hardware, statement of 2026-11-20)"},
+    {"lens": "drivers", "text": "10% of European leveraged loans trade below 80 while euro BB bonds are flat on the year. One source, so it is not promoted.", "source": "F17 (@ZeGoodTrader, 2026-11-07)"},
+    {"lens": "policy", "text": "The ECB is said to be near the end of its hiking cycle and runs off a €250bn corporate bond book. One source.", "source": "F18 (@ZeGoodTrader, 2026-11-07)"},
+    {"lens": "drivers", "text": "Banks try to place about $2bn of hung software buyout debt in HY at about 85 cents. One source.", "source": "F15 (@junkbondinvest, 2026-11-10)"},
+    {"lens": "cycle", "text": "An author argues that credit pays like a sold equity put, so an equity fall leads credit. This is a narrative and not a fact.", "source": "N6 (inbox JN1, Applied Macro, 2026-11-23)"}
+  ],
+  "blind_spots": [
+    "No lens was empty, but every lens has gaps. Macro has no revenue or interest-cover series. Cycle has no ISM, housing starts or default rate. Policy has no market-implied rate path. Drivers has no issuance, fund-flow or earnings series",
+    "Europe has almost no evidence. readings.json holds US series only. All European items come from one X account (F17, F18, F25). No theme covers Europe",
+    "Sectors with no evidence: energy, health care, consumer, autos, utilities, financials other than bank loan sales, and US real estate. Almost all evidence is about technology and the AI build",
+    "The sources are biased. All 17 X accounts come from one person's follow list and are not independent. The inbox search used theme terms about AI debt, so it finds AI items by design. Most deal items are second-hand from one newsletter",
+    "The previous evidence pack (inbox items I1 to I26 and the older X pack) was not an input of this run. Items such as the first bank loan sale were not counted",
+    "The spread readings are dated 20 Nov and predate the equity rebound of 23 Nov. Three claims failed a web check and were not counted (F23)",
+    "Skills that were not relevant: dalio-how-countries-go-broke, eichengreen-capital-flows-crises, christodoulakis-european-periphery-debt-crisis, bresciani-turroni-economics-of-inflation, suria-event-driven-edge and dalio-changing-world-order. Case-only skills were not opened: gurevich-trades-of-march-2020, drobny-inside-the-house-of-money and drobny-invisible-hands",
+    "Method skills that fit but were not opened, because each card reads at most three chapters: schularick-taylor-credit-booms, schulte-credit-driven-economy, fed-bank-lending-to-private-credit, campbell-in-search-of-distress-risk, cassidy-how-markets-fail, koo-balance-sheet-recession and axilrod-inside-the-fed",
+    "No source contained an instruction to the reader. One post states its author's own trade levels and they are not relayed",
+    "This is the first run. There is no previous themes.json and no ledger, so no theme could be compared with an earlier one"
+  ]
+}

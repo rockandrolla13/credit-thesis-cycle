@@ -21,7 +21,7 @@ flowchart LR
   E --> F["Send<br/>model, mail<br/>one email"]
 ```
 
-Cron starts `cycle/run_cycle.sh` every two days at 07:10. A second job, `cycle/backfill.sh`, collects older posts each night.
+Since 2026-11-24 a seventh step, Themes, runs between Analyse and Page: a model with file access only forms the step 1 themes, and a script checks them. Cron starts `cycle/run_cycle.sh` every two days at 07:10. A second job, `cycle/backfill.sh`, collects older posts each night.
 
 ## 2. Three narrow agents
 
@@ -60,7 +60,7 @@ flowchart TB
 | Long yields carry part of it | candidate: size unknown |
 | A capex cut and the leases | candidate: no axis yet |
 
-**Status of this part: intended, not built.** Today the agent writes one thesis with one axis. The six themes are a proposal from the causal chain of 2026-11-23.
+**Status of this part: built on 2026-11-24 as the themes stage.** `cycle/themes_prompt.md` forms the themes from four inputs, and `cycle/check_themes.py` enforces the rules, keeps the ledger `cycle/ledger/themes.jsonl` and adds the themes to the email. The first test formed three themes, in `runs/2026-11-23/themes.md`. The six themes in the diagram were the earlier proposal.
 
 ## 4. How it reasons about each theme
 
@@ -159,7 +159,7 @@ The email follows `cycle/style_guide.md` and passes three style passes. The numb
 
 ## 11. Open gaps on 2026-11-23
 
-1. The theme split of section 3 is not built.
+1. The themes stage is new. It passed one test on the run of 2026-11-23 and has not yet run inside the unattended job. The one-page view does not show the themes yet.
 2. The published page does not update itself. The job rebuilds `view.html`, and a person or a session must republish the link.
 3. The history of posts is incomplete: 32 of about 207 account-months.
 4. The style passes are not proven unattended. One run skipped them because of a file permission. The repair awaits its first run.

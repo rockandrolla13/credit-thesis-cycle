@@ -3,9 +3,10 @@
 # Run by cron every 2 days. Log: ~/.local/state/credit-thesis-cycle/run.log
 #
 # Usage: run_cycle.sh [--no-send] [--no-collect] [--only-collect] [handle ...]
-# Three separate Claude runs, each with its own narrow permissions:
+# Separate Claude runs, each with its own narrow permissions:
 #   collect : browser read only, fixed script, writes cycle/raw/        (no mail, no shell)
 #   analyse : reads files, Gmail read only, writes the run directory     (no browser, no send)
+#   themes  : reads files, writes themes.json in the run directory           (no browser, no mail, no web)
 #   send    : reads email.txt, sends one mail to recipients.txt          (nothing else)
 # A fourth run is optional and OFF unless the file cycle/publish.enabled exists:
 #   publish : reads view.html, updates one published page                (no shell, no mail)
@@ -69,6 +70,20 @@ timeout 4500 claude -p "$(render "$CY/analyse_prompt.md")" \
   --settings "$CY/analyse-settings.json" --permission-mode dontAsk --output-format text \
   >"$RUN/analyse.log" 2>&1
 echo "analyse exit $?"
+
+# 4b. Step 1 themes. A separate run with its own narrow permissions. A failure is not fatal.
+#     The model proposes themes.json. check_themes.py decides, writes the ledger and adds the block to the email.
+if [ -f "$CY/themes_prompt.md" ] && [ ! -f "$CY/themes.disabled" ]; then
+  timeout 2400 claude -p "$(render "$CY/themes_prompt.md")" \
+    --settings "$CY/themes-settings.json" --permission-mode dontAsk --output-format text \
+    >"$RUN/themes.log" 2>&1 < /dev/null
+  echo "themes exit $?"
+  if /usr/bin/python3 "$CY/check_themes.py" "$RUN" --ledger "$CY/ledger/themes.jsonl"; then
+    [ -s "$RUN/email.txt" ] && /usr/bin/python3 "$CY/check_themes.py" "$RUN" --email "$RUN/email.txt" | tail -n 1
+  else
+    echo "WARN themes failed the check; the email goes out without the themes block"
+  fi
+fi
 
 # 5. Build the one-page view. Plain Python. A failure is a warning, never fatal.
 rm -f "$RUN/view.html"

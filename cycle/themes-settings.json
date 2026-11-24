@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "defaultMode": "dontAsk",
+    "allow": [
+      "Read(//home/ak/.agents/skills/**)",
+      "Read(//home/ak/.local/share/credit-scenario-grid/runs/**)",
+      "Read(//home/ak/.local/share/credit-scenario-grid/cycle/ledger/**)",
+      "Edit(//home/ak/.local/share/credit-scenario-grid/runs/**)",
+      "Bash(python3 /home/ak/.local/share/credit-scenario-grid/cycle/check_themes.py /home/ak/.local/share/credit-scenario-grid/runs/*)"
+    ],
+    "deny": [
+      "NotebookEdit", "WebFetch", "WebSearch", "Agent", "Skill",
+      "Read(//home/ak/.local/share/credit-scenario-grid/cycle/recipients.txt)",
+      "mcp__claude_ai_Gmail", "mcp__claude-in-chrome"
+    ]
+  }
+}
