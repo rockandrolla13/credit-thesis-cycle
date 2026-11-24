@@ -6,7 +6,7 @@ The thesis it maintains now: **how much of next year's AI debt supply do US cred
 
 The same description with styled diagrams is in [`docs/agent.html`](docs/agent.html). Each diagram is also a separate image in [`docs/diagrams/`](docs/diagrams/). The latest one-page view of the thesis is `runs/<date>/view.html`.
 
-Two working papers sit beside it: [`docs/step1-ideas.md`](docs/step1-ideas.md) lists the ideas the skill library gave for the four inputs of step 1, and [`docs/step1-improvements.md`](docs/step1-improvements.md) proposes how to improve step 1.
+Two working papers sit beside it: [`docs/step1-ideas.md`](docs/step1-ideas.md) lists the ideas the skill library gave for the four inputs of step 1, and [`docs/step1-improvements.md`](docs/step1-improvements.md) proposes how to improve step 1. [`docs/step1-summary.md`](docs/step1-summary.md) is the short version, and [`docs/step1-prompt.md`](docs/step1-prompt.md) is the proposal written as an agent prompt.
 
 ## 1. The loop
 
